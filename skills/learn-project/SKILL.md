@@ -1,34 +1,114 @@
 ---
 name: learn-project
-description: Analyze a source repository under the current directory, generate or maintain ARCHITETURE.html and LEARNING_PLAN.md, and run an interactive function-level source-learning curriculum with questions, feedback, notes, and progress tracking. Use when the user invokes /skill:learn-project with a repository name or asks to study a repository's architecture and source code.
+description: Analyze a source repository beneath the current workspace, centrally store its architecture report, learning plan, identity metadata, and session notes under the workspace repository, and run an interactive function-level source-learning curriculum with feedback and progress tracking. Use when the user invokes /skill:learn-project with a repository path or asks to study and track a project's architecture and source code.
 ---
 
 # Learn Project
 
-Treat the skill argument as the name or relative path of one repository beneath the current working directory.
+Treat the skill argument as the name or relative path of one source repository beneath the current workspace repository.
 
 ## Safety and path resolution
 
 1. Require exactly one repository argument. If it is missing, ask for it and stop.
-2. Resolve it against the current working directory. Reject a path that resolves outside the current directory, does not exist, or is not a directory.
-3. Call the resolved directory `REPO`. Do not assume the current directory itself is the repository.
-4. Never modify source code while following this skill. Only create or update the study files described below.
-5. Respect ignored/generated/vendor directories. Start with repository metadata and manifests, then inspect source selectively. Do not bulk-read dependencies, build output, minified files, generated files, binaries, or secrets. Never reproduce secret values in study material.
+2. Resolve the current Git repository root and call it `WORKSPACE`. If the current directory is not inside a Git repository, explain that centralized, syncable study state requires a workspace repository and stop.
+3. Resolve the argument against the current working directory and call the result `REPO`. Reject a path that resolves outside `WORKSPACE`, equals `WORKSPACE`, does not exist, or is not a directory.
+4. Keep all generated study state in `WORKSPACE`, never in `REPO`. The target repository is read-only: do not create, update, move, or delete source files or study artifacts inside it.
+5. Never write to a nested target repository's Git metadata. Respect ignored/generated/vendor directories. Start with repository metadata and manifests, then inspect source selectively. Do not bulk-read dependencies, build output, minified files, generated files, binaries, or secrets. Never reproduce secret values in study material.
+6. Use workspace-relative paths for synchronized metadata and links whenever possible. Never persist machine-specific absolute paths.
 
-The required top-level study files use these exact names, including the spelling:
+## Central study layout and project correlation
 
-- `REPO/ARCHITETURE.html`
-- `REPO/LEARNING_PLAN.md`
+Store every project's learning material beneath this workspace-owned root:
 
-Study-session records go under:
+```text
+WORKSPACE/PROJECT_LEARNING/
+├── projects.json
+└── <project-key>/
+    ├── PROJECT.json
+    ├── ARCHITETURE.html
+    ├── LEARNING_PLAN.md
+    └── LEARNING_NOTES/
+        └── <module-slug>/YYYY-MM-DD-<function-slug>.md
+```
 
-- `REPO/LEARNING_NOTES/<module-slug>/YYYY-MM-DD-<function-slug>.md`
+`ARCHITETURE.html` retains its historical spelling. Call the project directory `STUDY_ROOT`. All checks, reads, writes, progress updates, and note creation must use `STUDY_ROOT`; never fall back to similarly named files in `REPO`.
 
-Use the local date. Make slugs filesystem-safe. If overloaded or duplicate function names would collide, add a short class, namespace, or file qualifier to `function-slug`.
+### Stable project identity
+
+Correlate central files to the source project with both a human-readable key and synchronized metadata:
+
+1. Derive `projectName` from the target Git root's directory name. If the target is not a Git repository, use `REPO`'s directory name.
+2. Convert `projectName` to a lowercase filesystem-safe slug. Preserve letters and numbers, collapse other runs to one hyphen, and trim hyphens. Use `project` if the result is empty.
+3. Read the target's `origin` fetch URL when available. Normalize HTTPS, `ssh://`, and SCP-like `user@host:path` forms to one credential-free identity, `https://<lowercase-host>/<repository-path>`, so SSH and HTTPS clones of the same project correlate. Remove userinfo, tokens, default ports, duplicate slashes, a trailing `.git`, and a trailing slash. Retain a non-default port. Treat local/file remotes as unavailable rather than persisting machine-specific paths. Never persist secrets from a remote URL.
+4. Build the identity seed from the sanitized canonical remote URL when available; otherwise use the normalized POSIX-style path from `WORKSPACE` to `REPO`.
+5. Compute the first eight lowercase hexadecimal characters of SHA-256 over the UTF-8 identity seed. Set `projectKey` to `<project-slug>--<hash8>`, for example `redis--3a71c9e2`. The readable prefix identifies the project; the hash prevents collisions between forks or same-named directories.
+6. Before creating a key, read `PROJECT_LEARNING/projects.json`. Reuse an existing entry when its sanitized remote matches, or—when no remote exists—its repository-relative path matches. This keeps identity stable when the display name changes. Never silently merge two different remotes.
+7. Set `STUDY_ROOT` to `WORKSPACE/PROJECT_LEARNING/<projectKey>`.
+
+Create `STUDY_ROOT/PROJECT.json` with this portable shape:
+
+```json
+{
+  "schemaVersion": 1,
+  "projectKey": "redis--3a71c9e2",
+  "projectName": "redis",
+  "repository": {
+    "workspaceRelativePath": "sources/redis",
+    "remote": "https://github.com/redis/redis"
+  },
+  "artifacts": {
+    "architecture": "ARCHITETURE.html",
+    "learningPlan": "LEARNING_PLAN.md",
+    "notes": "LEARNING_NOTES"
+  },
+  "createdAt": "YYYY-MM-DD",
+  "updatedAt": "YYYY-MM-DD"
+}
+```
+
+Use `null` for an unavailable remote. Preserve `createdAt`; update `updatedAt` only when this skill changes project study state. Maintain `PROJECT_LEARNING/projects.json` as a sorted registry using this shape:
+
+```json
+{
+  "schemaVersion": 1,
+  "projects": [
+    {
+      "projectKey": "redis--3a71c9e2",
+      "projectName": "redis",
+      "repository": {
+        "workspaceRelativePath": "sources/redis",
+        "remote": "https://github.com/redis/redis"
+      },
+      "manifest": "PROJECT_LEARNING/redis--3a71c9e2/PROJECT.json"
+    }
+  ]
+}
+```
+
+Sort entries by `projectKey`. Write valid UTF-8 JSON with stable two-space indentation and a trailing newline. Update the registry and manifest together; do not leave one pointing to a missing directory.
+
+Validate correlation on every invocation:
+
+- the registry entry, directory name, and manifest `projectKey` must agree;
+- the manifest's workspace-relative source path must resolve to `REPO` without escaping `WORKSPACE`;
+- a stored remote mismatch is an identity conflict, not an automatic update;
+- if a repository moved inside the workspace but the sanitized remote still matches, update only its workspace-relative path;
+- if neither path nor remote identifies an existing entry, create a new project key rather than reusing another project's notes.
+
+Use the local date. Make note slugs filesystem-safe. If overloaded or duplicate function names would collide, add a short class, namespace, or file qualifier to `function-slug`.
+
+### Legacy target-repository artifacts
+
+At startup, check `REPO` for legacy `ARCHITETURE.html`, `LEARNING_PLAN.md`, or `LEARNING_NOTES/` created by older versions of this skill.
+
+- Never continue updating those target-local files.
+- If `STUDY_ROOT` has no corresponding artifacts, offer to migrate them. With user approval, copy them into `STUDY_ROOT`, rewrite only note links needed for the central layout, validate the copy, and then ask separately before deleting the originals.
+- If central and legacy artifacts both exist, keep the central copy authoritative and report the legacy files; do not merge or overwrite automatically.
+- Never delete target-local artifacts without explicit confirmation, even after a successful migration.
 
 ## Initial inspection
 
-Check independently whether each required study file exists.
+After validating `PROJECT.json` and the central registry, check independently whether `STUDY_ROOT/ARCHITETURE.html` and `STUDY_ROOT/LEARNING_PLAN.md` exist.
 
 Also inspect, in this order:
 
@@ -42,7 +122,7 @@ Detect the primary languages and use appropriate symbol/search tools available i
 
 ## Missing-file workflow
 
-If either required file is missing, perform architecture research before creating the missing file(s).
+If either required file is missing from `STUDY_ROOT`, perform architecture research before creating the missing central file(s). Create or validate the project manifest and registry first.
 
 ### Research
 
@@ -68,13 +148,13 @@ Create a standalone, readable HTML5 document that works locally without a server
 7. notable strengths and exactly how implementation/design choices produce them;
 8. notable weaknesses, trade-offs, and the technical or organizational factors that contribute to them;
 9. a fair comparison table with a small set of genuinely similar projects, including where this project is or is not a good fit;
-10. a “Source-code map” linking claims to repository-relative file paths and symbols, with original line ranges when reliably available;
-11. uncertainty/version notes: analyzed revision or commit (if available), current date, and areas not verified;
+10. a “Source-code map” linking claims to `REPO`-relative file paths and symbols, with original line ranges when reliably available; because the HTML lives outside `REPO`, display source paths as repository-relative text and compute any clickable local `href` relative from `STUDY_ROOT` to the source file;
+11. project identity from `PROJECT.json` (`projectName`, `projectKey`, workspace-relative repository path, and sanitized remote), plus uncertainty/version notes: analyzed revision or commit (if available), current date, and areas not verified;
 12. references with clickable URLs, titles, access dates, and a distinction between repository evidence and external evidence.
 
 Use diagrams where useful. Prefer inline SVG or semantic HTML/CSS; include text explanations so diagrams are not the only representation. Do not use Mermaid unless it is bundled and works offline.
 
-If `ARCHITETURE.html` already exists, preserve it. Read it as an input when making a missing learning plan. Only replace it when the user explicitly requests regeneration. If it is missing, generate it even when the plan already exists, and then report material inconsistencies without silently rewriting the plan.
+If `STUDY_ROOT/ARCHITETURE.html` already exists, preserve it. Read it as an input when making a missing learning plan. Only replace it when the user explicitly requests regeneration. If it is missing, generate it in `STUDY_ROOT` even when the plan already exists, and then report material inconsistencies without silently rewriting the plan.
 
 ### Generate `LEARNING_PLAN.md`
 
@@ -82,6 +162,7 @@ Base the curriculum on the architecture analysis and actual source tree. If the 
 
 The plan must contain:
 
+- `projectName`, `projectKey`, sanitized remote when available, and the workspace-relative path from `WORKSPACE` to `REPO`;
 - analyzed revision/commit and date;
 - learning goals and suggested prerequisites;
 - a module-by-module order that follows real execution/data flows and respects dependencies;
@@ -103,25 +184,27 @@ Use this parseable shape for every step:
   - Session note:
 ```
 
+Keep every `Source:` value relative to `REPO`, because it identifies source code. Keep every populated `Session note:` value relative to `STUDY_ROOT` (for example `LEARNING_NOTES/core/2026-07-21-dispatch.md`), because it identifies centralized learning state. Never prefix source paths with machine-specific absolute directories.
+
 Choose functions that collectively teach the architecture, not merely the longest functions. Keep the plan practical. If no conventional function exists for an important declarative module, choose the nearest executable loader, parser, adapter, build task, or test helper and state why.
 
 After creating or regenerating both `ARCHITETURE.html` and `LEARNING_PLAN.md` in the current invocation, stop before the learning-step workflow. In that response, output only two clickable Markdown links—one to each generated file—and nothing else. Do not summarize, identify the first unchecked step, ask a question, or invite the user to continue. The user can start the learning-step workflow in a later invocation.
 
-Use this response shape, with paths resolved relative to the current working directory:
+Use this response shape, with both central artifact paths resolved relative to the current working directory:
 
 ```markdown
-[ARCHITETURE.html](relative/path/to/ARCHITETURE.html)
-[LEARNING_PLAN.md](relative/path/to/LEARNING_PLAN.md)
+[ARCHITETURE.html](relative/path/to/PROJECT_LEARNING/<project-key>/ARCHITETURE.html)
+[LEARNING_PLAN.md](relative/path/to/PROJECT_LEARNING/<project-key>/LEARNING_PLAN.md)
 ```
 
 If only one missing study file was created, report its link and the preserved companion file's link, but still do not begin the learning-step workflow or ask questions in that same response.
 
 ## Existing-file and progress workflow
 
-When both files exist:
+When both central files exist:
 
-1. Read both and validate plan references against the current source revision.
-2. Read existing `LEARNING_NOTES` records as needed.
+1. Validate `PROJECT.json` and its `projects.json` registry entry, then read both study files and validate their `REPO`-relative source references against the current source revision.
+2. Read existing `STUDY_ROOT/LEARNING_NOTES` records as needed.
 3. Determine completion from checked boxes plus valid `Session note` links. Do not mark a step complete merely because its box is checked if its record is absent; report the inconsistency.
 4. Recompute the `Progress Summary` if stale.
 5. Choose the first unchecked step whose prerequisites are complete. If source moved, locate the symbol and repair only its source reference in the plan, noting the drift.
@@ -195,7 +278,7 @@ Do not call file-writing tools, announce completion, mark a checkbox, or move di
 
 ### 4. Record the session
 
-After all feedback—including the explicitly displayed final-answer feedback—is complete, create the module-level session markdown file. Never use the session note as a substitute for showing final feedback in the conversation. It must include:
+After all feedback—including the explicitly displayed final-answer feedback—is complete, create the module-level session markdown file under `STUDY_ROOT/LEARNING_NOTES/<module-slug>/`. Never create it under `REPO`, and never use the session note as a substitute for showing final feedback in the conversation. It must include:
 
 - date, analyzed revision, step ID, module, function, and original source location;
 - architectural context and learning objectives;
@@ -211,8 +294,8 @@ If the target filename already exists, do not overwrite it. Add a numeric suffix
 
 Only after the session record is successfully written:
 
-1. change that step from `[ ]` to `[x]` in `LEARNING_PLAN.md`;
-2. set its `Session note:` to the repository-relative note path;
+1. change that step from `[ ]` to `[x]` in `STUDY_ROOT/LEARNING_PLAN.md`;
+2. set its `Session note:` to the note path relative to `STUDY_ROOT`;
 3. recompute total/completed/remaining and `Next step` in `Progress Summary`;
 4. preserve stable IDs and unrelated user edits;
 5. report the completed step, note path, progress count, and next eligible step.
