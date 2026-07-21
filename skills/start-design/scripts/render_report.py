@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render SYSTEM_DESIGG.md as a modern, self-contained HTML report."""
+"""Render SYSTEM_DESIGN.md as a modern, self-contained HTML report."""
 
 from __future__ import annotations
 
@@ -17,9 +17,9 @@ except ImportError as exc:  # pragma: no cover
 
 def find_root(start: Path) -> Path:
     for candidate in (start, *start.parents):
-        if (candidate / "SYSTEM_DESIGG.md").exists():
+        if (candidate / "SYSTEM_DESIGN.md").exists():
             return candidate
-    raise SystemExit("Could not find SYSTEM_DESIGG.md in the current directory or its ancestors.")
+    raise SystemExit("Could not find SYSTEM_DESIGN.md in the current directory or its ancestors.")
 
 
 def extract(pattern: str, source: str, default: str) -> str:
@@ -210,7 +210,7 @@ def build_report(source: str) -> str:
       </div>
     </header>
     <article id="report">{body}</article>
-    <footer class="report-footer">Generated from <code>SYSTEM_DESIGG.md</code> on {datetime.now().strftime('%Y-%m-%d %H:%M')} · The Markdown tracker remains the source of truth.</footer>
+    <footer class="report-footer">Generated from <code>SYSTEM_DESIGN.md</code> on {datetime.now().strftime('%Y-%m-%d %H:%M')} · The Markdown tracker remains the source of truth.</footer>
   </main>
 </div>
 <script>
@@ -244,7 +244,7 @@ def build_report(source: str) -> str:
 def initialize_tracker(source_path: Path) -> None:
     if source_path.exists():
         raise SystemExit(f"Refusing to overwrite existing tracker: {source_path}")
-    template_path = Path(__file__).resolve().parent.parent / "assets" / "SYSTEM_DESIGG.md"
+    template_path = Path(__file__).resolve().parent.parent / "assets" / "SYSTEM_DESIGN.md"
     if not template_path.is_file():
         raise SystemExit(f"Bundled tracker template is missing: {template_path}")
     source = template_path.read_text(encoding="utf-8")
@@ -256,7 +256,7 @@ def initialize_tracker(source_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, help="Repository root containing SYSTEM_DESIGG.md")
+    parser.add_argument("--root", type=Path, help="Repository root containing SYSTEM_DESIGN.md")
     parser.add_argument("--init", action="store_true", help="Create the bundled tracker when it is missing")
     args = parser.parse_args()
     if args.root:
@@ -265,8 +265,8 @@ def main() -> None:
         root = Path.cwd().resolve()
     else:
         root = find_root(Path.cwd().resolve())
-    source_path = root / "SYSTEM_DESIGG.md"
-    output_path = root / "SYSTEM_DESIGG.html"
+    source_path = root / "SYSTEM_DESIGN.md"
+    output_path = root / "SYSTEM_DESIGN.html"
     if args.init:
         initialize_tracker(source_path)
     elif not source_path.is_file():

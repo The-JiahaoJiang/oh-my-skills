@@ -1,16 +1,16 @@
 ---
 name: start-design
-description: Creates SYSTEM_DESIGG.md and SYSTEM_DESIGG.html when missing, then runs the next interactive system-design exercise, coaches the first five designs, interviews on later designs, and records completed designs. Use when the user invokes /skill:start-design or asks to start or continue the system-design curriculum.
+description: Creates SYSTEM_DESIGN.md and SYSTEM_DESIGN.html when missing, then runs the next interactive system-design exercise, coaches the first five designs, interviews on later designs, and records completed designs. Use when the user invokes /skill:start-design or asks to start or continue the system-design curriculum.
 ---
 
 # Start Design
 
-Run one stateful, interactive system-design curriculum using the repository's `SYSTEM_DESIGG.md` as its source of truth.
+Run one stateful, interactive system-design curriculum using the repository's `SYSTEM_DESIGN.md` as its source of truth.
 
 ## Locate or initialize the tracker
 
-1. Find `SYSTEM_DESIGG.md`, starting in the current working directory and then checking ancestor directories up to the repository root.
-2. If it is absent, choose the Git repository root as the target directory (`git rev-parse --show-toplevel`). If the current directory is not in a Git repository, use the current directory. Run `python scripts/render_report.py --root <target-directory> --init`, resolving the script relative to this skill directory. This copies the bundled curriculum from `assets/SYSTEM_DESIGG.md`, stamps the current local date, and generates `SYSTEM_DESIGG.html`. Never overwrite an existing tracker during initialization.
+1. Find `SYSTEM_DESIGN.md`, starting in the current working directory and then checking ancestor directories up to the repository root.
+2. If it is absent, choose the Git repository root as the target directory (`git rev-parse --show-toplevel`). If the current directory is not in a Git repository, use the current directory. Run `python scripts/render_report.py --root <target-directory> --init`, resolving the script relative to this skill directory. This copies the bundled curriculum from `assets/SYSTEM_DESIGN.md`, stamps the current local date, and generates `SYSTEM_DESIGN.html`. Never overwrite an existing tracker during initialization.
 3. Inspect both generated files. Verify that the Markdown contains all 40 checklist items and that the HTML passes the checks under **Maintain the HTML report**. Report links to both files and stop; begin the first exercise only on a later invocation.
 4. If the tracker exists, read the whole file before every session. Never rely only on chat memory: the file is authoritative.
 5. Parse checklist IDs in order. Select the first unchecked item (`- [ ]`). If all are checked, congratulate the learner, summarize overall progress, and do not invent another issue unless asked.
@@ -20,11 +20,11 @@ If an existing tracker is malformed, explain the problem and stop rather than si
 
 ## Maintain the HTML report
 
-`SYSTEM_DESIGG.md` is the editable source of truth; `SYSTEM_DESIGG.html` is its generated presentation report. Keep both in the same repository directory.
+`SYSTEM_DESIGN.md` is the editable source of truth; `SYSTEM_DESIGN.html` is its generated presentation report. Keep both in the same repository directory.
 
-- After every change to `SYSTEM_DESIGG.md`—especially progress, completion records, corrected designs, diagrams, or references—regenerate and examine the report in the same turn.
-- Run `python scripts/render_report.py --root <directory-containing-SYSTEM_DESIGG.md>`, resolving `scripts/render_report.py` relative to this skill directory. Do not manually edit generated HTML. The renderer performs structural regression checks and reads the persisted artifact back before reporting success.
-- After generation, inspect the actual `SYSTEM_DESIGG.html`, not only command output. At minimum verify that all 40 issues appear and opening/closing layout elements are balanced. Once at least one solved design exists, also verify that nested draft/revised bullets are nested HTML lists, collapsed details contain rendered HTML rather than raw Markdown, and Mermaid blocks are present. If browser or screenshot tooling is available, render both desktop and mobile widths and visually inspect them as well.
+- After every change to `SYSTEM_DESIGN.md`—especially progress, completion records, corrected designs, diagrams, or references—regenerate and examine the report in the same turn.
+- Run `python scripts/render_report.py --root <directory-containing-SYSTEM_DESIGN.md>`, resolving `scripts/render_report.py` relative to this skill directory. Do not manually edit generated HTML. The renderer performs structural regression checks and reads the persisted artifact back before reporting success.
+- After generation, inspect the actual `SYSTEM_DESIGN.html`, not only command output. At minimum verify that all 40 issues appear and opening/closing layout elements are balanced. Once at least one solved design exists, also verify that nested draft/revised bullets are nested HTML lists, collapsed details contain rendered HTML rather than raw Markdown, and Mermaid blocks are present. If browser or screenshot tooling is available, render both desktop and mobile widths and visually inspect them as well.
 - The report must remain modern, responsive, accessible, dark-mode and print friendly. It must present dashboard progress, the complete checklist, stage-by-stage draft-versus-revised learning reviews, Mermaid architecture diagrams, tradeoffs, shortcomings, and useful references.
 - Treat the Markdown tracker as authoritative if generation or examination fails. Fix the report before claiming success; if it cannot be fixed, report the exact failure clearly and never claim that the HTML was updated successfully.
 - When beginning a session, regenerate and examine the report if it is absent or older than the Markdown tracker. If only the HTML is missing, run the renderer without `--init`; do not alter the Markdown.
@@ -89,7 +89,7 @@ Never mark an issue complete merely because the user says “next” if importan
 
 ## Persist completion
 
-After explicit consensus, edit `SYSTEM_DESIGG.md` in the same turn:
+After explicit consensus, edit `SYSTEM_DESIGN.md` in the same turn:
 
 1. Change only that issue's checkbox from `- [ ]` to `- [x]`.
 2. Recompute and update `Completed`, set `Current issue` to the next unchecked ID/title (or `Curriculum complete`), and set `Last updated` to the current date.
@@ -98,7 +98,7 @@ After explicit consensus, edit `SYSTEM_DESIGG.md` in the same turn:
 5. When the learner had a material misconception or explicitly asked for help, add a small **Useful references** list for that stage. Prefer authoritative specifications, official product documentation, OWASP, cloud architecture guidance, or established engineering references. Verify links with web research when web tools are available; do not add generic link dumps.
 6. Add a Mermaid graph for the final architecture. Put the exhaustive final design—requirements, estimates, APIs/data model, architecture, invariants, reliability, security/compliance, operations, decisions, alternatives, accepted risks, and conclusion—inside a collapsed `<details>` block so the learning review remains easy to scan.
 7. Keep meaningful disagreement and uncertainty visible. Describe gaps constructively and specifically; do not fabricate decisions, overstate guarantees, or use demeaning language.
-8. Regenerate `SYSTEM_DESIGG.html` with `scripts/render_report.py`, verify that the command succeeds, and examine the persisted HTML using the checks in **Maintain the HTML report**.
+8. Regenerate `SYSTEM_DESIGN.html` with `scripts/render_report.py`, verify that the command succeeds, and examine the persisted HTML using the checks in **Maintain the HTML report**.
 9. Tell the learner exactly what was updated and name the next issue. Start the next issue only if requested; otherwise stop at a clean boundary.
 
 If a solved section already exists, update it instead of creating a duplicate. Preserve prior completed sections.

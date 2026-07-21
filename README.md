@@ -10,10 +10,8 @@ Runs an interactive 40-exercise system-design curriculum. The first five exercis
 
 On first use, the skill creates:
 
-- `SYSTEM_DESIGG.md` — editable curriculum and source of truth
-- `SYSTEM_DESIGG.html` — generated responsive progress report
-
-> `SYSTEM_DESIGG` is the intentional artifact name used by this skill.
+- `SYSTEM_DESIGN.md` — editable curriculum and source of truth
+- `SYSTEM_DESIGN.html` — generated responsive progress report
 
 ## Install
 
