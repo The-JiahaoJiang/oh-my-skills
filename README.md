@@ -23,7 +23,13 @@ git clone https://github.com/The-JiahaoJiang/oh-my-skills.git
 pi install /path/to/oh-my-skills
 ```
 
-Reload Pi after installation:
+Update an existing GitHub installation:
+
+```bash
+pi update git:github.com/The-JiahaoJiang/oh-my-skills
+```
+
+Reload Pi after installation or update:
 
 ```text
 /reload

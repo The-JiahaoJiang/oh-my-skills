@@ -26,6 +26,7 @@
       <a href="#skills">Skills</a>
       <a href="#start-design">Start Design</a>
       <a href="#learn-project">Learn Project</a>
+      <a href="#publish-skill">Publish Skill</a>
       <a href="#install">Install</a>
     </nav>
     <a class="button button-quiet header-github" href="https://github.com/The-JiahaoJiang/oh-my-skills">GitHub <span aria-hidden="true">↗</span></a>
@@ -34,7 +35,7 @@
   <main id="main">
     <section class="hero section" id="top">
       <div class="hero-copy reveal">
-        <div class="eyebrow"><span></span> Two persistent learning systems for Pi</div>
+        <div class="eyebrow"><span></span> Three persistent engineering workflows for Pi</div>
         <h1>Don’t memorize architecture.<br><em>Reason through it.</em></h1>
         <p class="hero-lead">Practice system design from rough draft to defensible decisions, then learn production repositories one function at a time—with feedback, evidence, and progress that survives every session.</p>
         <div class="hero-actions">
@@ -87,7 +88,7 @@
       <div class="section-heading reveal">
         <div class="eyebrow"><span></span> Choose your learning path</div>
         <h2>From blank canvas to<br><em>production source.</em></h2>
-        <p>Both skills turn an open-ended learning goal into an ordered practice loop. One starts with a system prompt; the other starts with a real repository.</p>
+        <p>Three focused skills turn open-ended work into ordered loops: practice a new architecture, study a real repository, or publish a skill with every related surface synchronized.</p>
       </div>
       <div class="skill-grid">
         <article class="skill-card skill-card-purple reveal">
@@ -117,6 +118,24 @@
             <li>Answers and feedback saved as notes</li>
           </ul>
           <a href="#learn-project">See the source loop <span>→</span></a>
+        </article>
+        <article class="skill-card skill-card-amber skill-card-wide reveal">
+          <div class="skill-number">03</div>
+          <div class="skill-icon" aria-hidden="true">↑</div>
+          <div class="skill-card-body">
+            <div>
+              <div class="skill-label">Release automation</div>
+              <h3>Publish Skill</h3>
+              <p>Import or refresh a skill, synchronize package and documentation surfaces, validate every artifact, and publish a verified GitHub release.</p>
+            </div>
+            <ul>
+              <li>Safe skill import and frontmatter validation</li>
+              <li>README and visual showcase synchronization</li>
+              <li>Package, site, and global-install checks</li>
+              <li>Commit, Actions, and live Pages verification</li>
+            </ul>
+          </div>
+          <a href="#publish-skill">See the release loop <span>→</span></a>
         </article>
       </div>
     </section>
@@ -245,6 +264,66 @@
       </div>
     </section>
 
+    <section class="section feature publish-feature" id="publish-skill">
+      <div class="feature-header reveal">
+        <div>
+          <div class="eyebrow amber"><span></span> /skill:publish-skill [path]</div>
+          <h2>Ship a skill and every<br><em>surface around it.</em></h2>
+        </div>
+        <p>Turn a standalone skill directory—or pending work already in this repository—into a validated package, synchronized local installation, documented showcase, and verified GitHub publication.</p>
+      </div>
+
+      <div class="publish-flow reveal" role="img" aria-label="Publish Skill release workflow">
+        <div class="publish-step">
+          <span class="step-number">01</span><div class="step-icon">S</div>
+          <small>Input</small><strong>Read skill</strong><p>Path or repository diff</p>
+        </div>
+        <span class="publish-arrow" aria-hidden="true">→</span>
+        <div class="publish-step">
+          <span class="step-number">02</span><div class="step-icon">V</div>
+          <small>Safety gate</small><strong>Validate</strong><p>Name · files · references</p>
+        </div>
+        <span class="publish-arrow" aria-hidden="true">→</span>
+        <div class="publish-step">
+          <span class="step-number">03</span><div class="step-icon">↻</div>
+          <small>Synchronize</small><strong>Update surfaces</strong><p>Package · README · site</p>
+        </div>
+        <span class="publish-arrow" aria-hidden="true">→</span>
+        <div class="publish-step">
+          <span class="step-number">04</span><div class="step-icon">✓</div>
+          <small>Quality gate</small><strong>Build & inspect</strong><p>Site · tarball · diff</p>
+        </div>
+        <span class="publish-arrow" aria-hidden="true">→</span>
+        <div class="publish-step complete">
+          <span class="step-number">05</span><div class="step-icon">↑</div>
+          <small>Output</small><strong>Publish & verify</strong><p>Git · Actions · HTTP 200</p>
+        </div>
+      </div>
+
+      <div class="publish-example reveal">
+        <div class="publish-before">
+          <div class="pane-head"><span>Skill source</span><small>specified path</small></div>
+          <div class="mini-tree">
+            <p><span>◇</span> my-skill/</p>
+            <p><i></i><span>◆</span> SKILL.md</p>
+            <p><i></i><span>□</span> scripts/check.py</p>
+            <p><i></i><span>□</span> references/guide.md</p>
+          </div>
+          <code>/skill:publish-skill ../my-skill</code>
+        </div>
+        <div class="publish-after">
+          <div class="pane-head"><span>Verified publication</span><small>no force push · no secrets</small></div>
+          <div class="release-checks">
+            <p><span>✓</span><strong>Skill imported</strong><small>skills/my-skill/</small></p>
+            <p><span>✓</span><strong>Showcase rebuilt</strong><small>workflow graph + example</small></p>
+            <p><span>✓</span><strong>Package inspected</strong><small>npm pack --dry-run</small></p>
+            <p><span>✓</span><strong>Pages verified</strong><small>Actions success · HTTP 200</small></p>
+          </div>
+          <div class="release-result"><span class="pulse"></span><div><small>Published commit</small><strong>8f2c1a7 · main</strong></div></div>
+        </div>
+      </div>
+    </section>
+
     <section class="section principles">
       <div class="section-heading compact reveal">
         <div class="eyebrow"><span></span> Built for deliberate practice</div>
@@ -262,7 +341,7 @@
       <div class="install-card reveal">
         <div class="install-copy">
           <div class="eyebrow light"><span></span> Start learning</div>
-          <h2>One install.<br>Two deep practice loops.</h2>
+          <h2>One install.<br>Three deliberate workflows.</h2>
           <p>Install from GitHub, reload Pi, and choose a blank-canvas design or a repository you want to understand.</p>
           <a href="https://github.com/The-JiahaoJiang/oh-my-skills" class="button button-light">View source on GitHub <span>↗</span></a>
         </div>
@@ -270,7 +349,7 @@
           <div class="terminal-head"><div><i></i><i></i><i></i></div><span>terminal</span><button class="copy-button" type="button" data-copy="pi install git:github.com/The-JiahaoJiang/oh-my-skills" aria-label="Copy installation command">Copy</button></div>
           <div class="terminal-body">
             <div><span class="prompt">$</span><code>pi install git:github.com/The-JiahaoJiang/oh-my-skills</code></div>
-            <div class="terminal-result">✓ Package installed · 2 skills discovered</div>
+            <div class="terminal-result">✓ Package installed · 3 skills discovered</div>
             <div><span class="prompt">›</span><code>/reload</code></div>
             <div><span class="prompt">›</span><code>/skill:start-design</code></div>
             <div class="or"><span></span>or<span></span></div>
@@ -283,7 +362,7 @@
 
   <footer>
     <a class="brand" href="#top"><span class="brand-mark">OM</span><span>Oh My Skills</span></a>
-    <p>Persistent architecture practice for curious engineers.</p>
+    <p>Persistent engineering workflows for curious builders.</p>
     <div><a href="https://github.com/The-JiahaoJiang/oh-my-skills">GitHub</a><a href="https://pi.dev">Pi</a><span>© <span id="year"></span></span></div>
   </footer>
 </body>

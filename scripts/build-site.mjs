@@ -17,6 +17,9 @@ const requiredMarkers = [
   'id="learn-project"',
   'aria-label="Start Design learning flow"',
   'aria-label="Learn Project source-learning flow"',
+  'id="publish-skill"',
+  'aria-label="Publish Skill release workflow"',
+  '/skill:publish-skill',
 ];
 for (const marker of requiredMarkers) {
   if (!html.includes(marker)) throw new Error(`Site validation failed: missing ${marker}`);
