@@ -2,7 +2,9 @@
 
 A collection of reusable [Pi](https://pi.dev) agent skills for structured engineering practice.
 
-## Included skill: `start-design`
+## Included skills
+
+### `start-design`
 
 `start-design` runs a stateful, interactive system-design curriculum with 40 exercises covering foundational services, distributed systems, platform infrastructure, and fintech systems.
 
@@ -72,6 +74,68 @@ The 40 exercises include:
 - API gateways, identity, feature flags, distributed caches, coordination, and multi-region SaaS;
 - ledgers, payments, wallets, bank transfers, fraud detection, reconciliation, trading, settlement, billing, and AML monitoring.
 
+### `learn-project`
+
+`learn-project` turns a source repository into an evidence-backed, function-level learning curriculum. It first maps the project's architecture, then guides the learner through concrete functions in an order that follows real initialization, request, control, and data flows.
+
+Invoke it with one repository name or relative path beneath the current working directory:
+
+```text
+/skill:learn-project my-repository
+```
+
+#### Architecture analysis
+
+When study artifacts are missing, the skill selectively inspects repository documentation, manifests, entry points, public APIs, module boundaries, tests, deployment files, and representative execution paths. It also researches authoritative external material about the project and its closest alternatives.
+
+The analysis covers:
+
+- project purpose, users, scope, and primary use cases;
+- modules, responsibilities, dependencies, boundaries, and public interfaces;
+- representative end-to-end request, data, and control flows;
+- runtime, state ownership, concurrency, persistence, networking, and extension points;
+- build, testing, packaging, deployment, and operational architecture;
+- security boundaries, trust assumptions, failures, and error handling;
+- strengths, weaknesses, tradeoffs, and comparisons with similar projects;
+- a source-code map connecting claims to repository-relative files, symbols, and line ranges;
+- analyzed revision, uncertainties, and repository/external references.
+
+Architectural claims are grounded in source code or cited external evidence. Inferences are labeled rather than presented as verified facts.
+
+#### Function-level learning plan
+
+The generated curriculum selects exactly one concrete function or method per step. Each stable step records:
+
+- a module and step ID such as `M01-S01`;
+- the fully qualified function name where available;
+- repository-relative source path and original line range;
+- why the function matters and what should be learned;
+- prerequisites and a link to the eventual session note.
+
+The plan prioritizes functions that collectively explain the architecture, including initialization, core behavior, state and data flow, error paths, concurrency, performance, security, extensibility, and testing where relevant.
+
+#### Interactive source-learning sessions
+
+For each step, Pi reads the current function plus the callers, callees, types, tests, and configuration needed to explain it accurately. The session includes:
+
+1. the function's architectural role, inputs, outputs, side effects, invariants, and collaborators;
+2. simplified, sequentially numbered code that preserves important control flow, state changes, async boundaries, security checks, errors, and resource lifetime;
+3. one open-ended question at a time about the most relevant correctness, performance, concurrency, security, recovery, or API tradeoffs;
+4. feedback that identifies what the learner got right, omissions or misconceptions, and a recommended answer grounded in the code;
+5. a durable session note containing the simplified function, questions, learner answers, feedback, takeaways, and optional experiments.
+
+Progress is updated only after the session note is successfully written. The skill never modifies the repository's source code.
+
+#### Generated study artifacts
+
+The target repository receives:
+
+- `ARCHITETURE.html` — standalone architecture report with diagrams, comparisons, source-code mapping, uncertainty notes, and references;
+- `LEARNING_PLAN.md` — ordered function-level curriculum and progress tracker;
+- `LEARNING_NOTES/<module>/<date>-<function>.md` — completed interactive session records.
+
+`ARCHITETURE.html` retains the historical spelling used by this skill. Existing architecture and learning-plan files are preserved unless regeneration is explicitly requested.
+
 ## Requirements
 
 - [Pi coding agent](https://pi.dev)
@@ -100,11 +164,12 @@ pi install /path/to/oh-my-skills
 
 Alternatively, copy `skills/start-design` into `~/.pi/agent/skills/`.
 
-Reload Pi and start or continue the curriculum:
+Reload Pi and invoke either skill:
 
 ```text
 /reload
 /skill:start-design
+/skill:learn-project my-repository
 ```
 
-On the first invocation, the skill initializes the Markdown and HTML reports. Invoke it again to begin SD-01 or resume the first incomplete exercise.
+On the first `start-design` invocation, the skill initializes the Markdown and HTML reports. Invoke it again to begin SD-01 or resume the first incomplete exercise. `learn-project` creates missing architecture and learning-plan artifacts on its first invocation, then begins the function-level curriculum on a later invocation.
