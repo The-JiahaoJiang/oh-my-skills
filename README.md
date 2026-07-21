@@ -4,7 +4,7 @@ A collection of reusable [Pi](https://pi.dev) agent skills for structured engine
 
 **[Explore the interactive project site →](https://the-jiahaojiang.github.io/oh-my-skills/)**
 
-The site visualizes both learning workflows with architecture graphs, draft-to-revised examples, source-learning diagrams, and installation instructions. GitHub Actions validates the site and publishes the generated files to the `gh-pages` branch on every relevant push to `main`.
+The site visualizes both learning workflows with architecture graphs, draft-to-revised examples, source-learning diagrams, and installation instructions. GitHub Actions validates the site and deploys it through the GitHub Pages artifact workflow on every relevant push to `main`.
 
 ## Included skills
 
