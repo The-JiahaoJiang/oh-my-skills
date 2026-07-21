@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive Pi skills for practicing system design and learning real-world source code.">
+  <meta name="theme-color" content="#0a0f1f">
+  <title>Oh My Skills · Learn architecture by doing</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Oh My Skills home">
+      <span class="brand-mark" aria-hidden="true">OM</span>
+      <span>Oh My Skills</span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span><span class="sr-only">Open navigation</span>
+    </button>
+    <nav id="site-nav" aria-label="Main navigation">
+      <a href="#skills">Skills</a>
+      <a href="#start-design">Start Design</a>
+      <a href="#learn-project">Learn Project</a>
+      <a href="#install">Install</a>
+    </nav>
+    <a class="button button-quiet header-github" href="https://github.com/The-JiahaoJiang/oh-my-skills">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="main">
+    <section class="hero section" id="top">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span></span> Two persistent learning systems for Pi</div>
+        <h1>Don’t memorize architecture.<br><em>Reason through it.</em></h1>
+        <p class="hero-lead">Practice system design from rough draft to defensible decisions, then learn production repositories one function at a time—with feedback, evidence, and progress that survives every session.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#install">Install the skills <span aria-hidden="true">↓</span></a>
+          <a class="button button-secondary" href="#skills">Explore workflows</a>
+        </div>
+        <div class="hero-proof" aria-label="Project highlights">
+          <div><strong>40</strong><span>design exercises</span></div>
+          <div><strong>1</strong><span>function per lesson</span></div>
+          <div><strong>∞</strong><span>repositories to learn</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" aria-label="A preview of the learning feedback loop">
+        <div class="window">
+          <div class="window-bar">
+            <div class="window-dots"><i></i><i></i><i></i></div>
+            <span>learning-session.md</span>
+            <span class="window-state">persisted</span>
+          </div>
+          <div class="window-body">
+            <div class="session-meta"><span>SD-06</span><span>Distributed key-value store</span></div>
+            <div class="thought thought-draft">
+              <span class="thought-icon">01</span>
+              <div><small>Your draft</small><p>Use leaderless replication and quorum reads for availability.</p></div>
+            </div>
+            <div class="connection" aria-hidden="true"><span></span></div>
+            <div class="thought thought-gap">
+              <span class="thought-icon">!</span>
+              <div><small>Knowledge gap found</small><p>How are concurrent versions reconciled after a partition?</p></div>
+            </div>
+            <div class="connection" aria-hidden="true"><span></span></div>
+            <div class="thought thought-revised">
+              <span class="thought-icon">✓</span>
+              <div><small>Revised design</small><p>Attach version vectors, reconcile siblings, and run read repair.</p></div>
+            </div>
+            <div class="reference-chip"><span>↗</span> Dynamo paper · Section 4.4</div>
+          </div>
+        </div>
+        <div class="float-card float-progress"><span>Progress</span><strong>12 / 40</strong><i><b></b></i></div>
+        <div class="float-card float-source"><span class="pulse"></span><div><strong>Source grounded</strong><small>file · symbol · lines</small></div></div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Learning principles">
+      <span>Source of truth on disk</span><i></i><span>Evidence-backed feedback</span><i></i><span>Explicit tradeoffs</span><i></i><span>Durable progress</span>
+    </section>
+
+    <section class="section intro" id="skills">
+      <div class="section-heading reveal">
+        <div class="eyebrow"><span></span> Choose your learning path</div>
+        <h2>From blank canvas to<br><em>production source.</em></h2>
+        <p>Both skills turn an open-ended learning goal into an ordered practice loop. One starts with a system prompt; the other starts with a real repository.</p>
+      </div>
+      <div class="skill-grid">
+        <article class="skill-card skill-card-purple reveal">
+          <div class="skill-number">01</div>
+          <div class="skill-icon" aria-hidden="true">◇</div>
+          <div class="skill-label">Design practice</div>
+          <h3>Start Design</h3>
+          <p>Work through 40 progressively harder architecture interviews. Preserve your first idea, expose its weak points, and revise it into a coherent design.</p>
+          <ul>
+            <li>Guided first five exercises</li>
+            <li>Interview mode for SD-06 onward</li>
+            <li>Draft-to-final learning reviews</li>
+            <li>Responsive HTML progress report</li>
+          </ul>
+          <a href="#start-design">See the design loop <span>→</span></a>
+        </article>
+        <article class="skill-card skill-card-mint reveal">
+          <div class="skill-number">02</div>
+          <div class="skill-icon" aria-hidden="true">⌘</div>
+          <div class="skill-label">Source learning</div>
+          <h3>Learn Project</h3>
+          <p>Map a repository’s architecture, generate an execution-flow curriculum, and study one carefully selected function in each interactive session.</p>
+          <ul>
+            <li>Architecture report with source map</li>
+            <li>Function-level learning plan</li>
+            <li>One adaptive question per turn</li>
+            <li>Answers and feedback saved as notes</li>
+          </ul>
+          <a href="#learn-project">See the source loop <span>→</span></a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section feature" id="start-design">
+      <div class="feature-header reveal">
+        <div>
+          <div class="eyebrow purple"><span></span> /skill:start-design</div>
+          <h2>Turn rough ideas into<br><em>defensible systems.</em></h2>
+        </div>
+        <p>Each design advances only when the important decisions are quantified, challenged, revised, and explicitly accepted—not merely because an answer was given.</p>
+      </div>
+
+      <div class="flow-panel reveal">
+        <div class="panel-top"><span>Learning flow</span><small>Persistent in SYSTEM_DESIGN.md</small></div>
+        <svg class="design-flow" viewBox="0 0 1120 300" role="img" aria-label="Start Design learning flow">
+          <defs>
+            <linearGradient id="purpleLine" x1="0" x2="1"><stop stop-color="#8978ff"/><stop offset="1" stop-color="#58d9c3"/></linearGradient>
+            <filter id="softGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <path class="flow-line" d="M105 145 C190 145 170 75 260 75 S330 215 420 215 S490 75 580 75 S650 215 740 215 S810 145 900 145 L1010 145"/>
+          <g class="flow-node" transform="translate(65 105)"><circle cx="40" cy="40" r="39"/><text x="40" y="35">01</text><text class="node-label" x="40" y="58">Scope</text></g>
+          <g class="flow-node" transform="translate(220 35)"><circle cx="40" cy="40" r="39"/><text x="40" y="35">02</text><text class="node-label" x="40" y="58">Scale</text></g>
+          <g class="flow-node" transform="translate(380 175)"><circle cx="40" cy="40" r="39"/><text x="40" y="35">03</text><text class="node-label" x="40" y="58">Model</text></g>
+          <g class="flow-node active" transform="translate(540 35)"><circle cx="40" cy="40" r="39"/><text x="40" y="35">04</text><text class="node-label" x="40" y="58">Design</text></g>
+          <g class="flow-node" transform="translate(700 175)"><circle cx="40" cy="40" r="39"/><text x="40" y="35">05</text><text class="node-label" x="40" y="58">Failure</text></g>
+          <g class="flow-node" transform="translate(860 105)"><circle cx="40" cy="40" r="39"/><text x="40" y="35">06</text><text class="node-label" x="40" y="58">Operate</text></g>
+          <g class="flow-complete" transform="translate(1000 105)"><circle cx="40" cy="40" r="39"/><text x="40" y="48">✓</text></g>
+        </svg>
+        <div class="flow-caption"><span><i class="dot draft"></i> learner decision</span><span><i class="dot challenge"></i> challenge and revise</span><span><i class="dot complete"></i> explicit consensus</span></div>
+      </div>
+
+      <div class="comparison-grid">
+        <article class="review-card draft-card reveal">
+          <div class="review-head"><span>Draft · Stage 5</span><small>Storage & consistency</small></div>
+          <blockquote>“Redis can be the source of truth because it gives us the latency target.”</blockquote>
+          <div class="review-tag">Initial intuition</div>
+        </article>
+        <article class="review-card gap-card reveal">
+          <div class="review-head"><span>Shortage found</span><small>Production consequence</small></div>
+          <p>Latency was considered, but durability, failover semantics, and recovery after acknowledged writes were left undefined.</p>
+          <div class="risk-line"><span>Risk</span><i></i><strong>silent data loss</strong></div>
+        </article>
+        <article class="review-card revised-card reveal">
+          <div class="review-head"><span>Revised design</span><small>Decision + tradeoff</small></div>
+          <p>Keep durable mappings in a replicated database. Use Redis as a derived cache with bounded TTL and explicit invalidation.</p>
+          <a href="https://redis.io/docs/latest/develop/use/patterns/" target="_blank" rel="noreferrer">Redis patterns <span>↗</span></a>
+        </article>
+      </div>
+
+      <div class="curriculum-panel reveal">
+        <div class="curriculum-copy">
+          <div class="eyebrow purple"><span></span> 40 architecture prompts</div>
+          <h3>A curriculum that grows with you.</h3>
+          <p>Start with familiar product systems, move through distributed infrastructure, and finish with correctness-heavy financial platforms.</p>
+          <div class="topic-chips"><span>URL shortener</span><span>Message broker</span><span>Object storage</span><span>Identity</span><span>Ledger</span><span>Trading exchange</span></div>
+        </div>
+        <div class="curriculum-chart" aria-label="Curriculum composition: 5 foundations, 23 distributed systems, and 12 fintech exercises">
+          <svg viewBox="0 0 240 240" role="img">
+            <circle class="ring-bg" cx="120" cy="120" r="82"/>
+            <circle class="ring foundations" cx="120" cy="120" r="82" pathLength="100"/>
+            <circle class="ring distributed" cx="120" cy="120" r="82" pathLength="100"/>
+            <circle class="ring fintech" cx="120" cy="120" r="82" pathLength="100"/>
+          </svg>
+          <div class="chart-center"><strong>40</strong><span>designs</span></div>
+          <div class="chart-legend"><span><i class="foundations-key"></i>5 guided</span><span><i class="distributed-key"></i>23 distributed</span><span><i class="fintech-key"></i>12 fintech</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section feature source-feature" id="learn-project">
+      <div class="feature-header reveal">
+        <div>
+          <div class="eyebrow mint"><span></span> /skill:learn-project</div>
+          <h2>Read a codebase in the<br><em>order it actually runs.</em></h2>
+        </div>
+        <p>Instead of scanning files alphabetically, build an evidence-backed architecture map and follow initialization, state, request, and failure paths one function at a time.</p>
+      </div>
+
+      <div class="source-map reveal" role="img" aria-label="Learn Project source-learning flow">
+        <div class="source-column repo-column">
+          <span class="column-label">Repository evidence</span>
+          <div class="file-card primary"><span>⌘</span><div><strong>entry.ts</strong><small>bootstrap()</small></div><b>01</b></div>
+          <div class="file-card"><span>◇</span><div><strong>router.ts</strong><small>dispatch()</small></div><b>02</b></div>
+          <div class="file-card"><span>□</span><div><strong>store.ts</strong><small>commit()</small></div><b>03</b></div>
+          <div class="file-card"><span>✓</span><div><strong>router.test.ts</strong><small>retry path</small></div><b>04</b></div>
+        </div>
+        <div class="map-connector" aria-hidden="true">
+          <svg viewBox="0 0 200 420" preserveAspectRatio="none"><path d="M0 55 C90 55 85 150 200 150 M0 150 C85 150 90 150 200 150 M0 245 C90 245 85 150 200 150 M0 340 C95 340 95 305 200 305"/><circle cx="198" cy="150" r="5"/><circle cx="198" cy="305" r="5"/></svg>
+        </div>
+        <div class="source-column artifact-column">
+          <span class="column-label">Generated learning system</span>
+          <article class="artifact-card architecture-artifact">
+            <div class="artifact-icon">A</div><div><small>Architecture map</small><strong>ARCHITETURE.html</strong><p>Boundaries · flows · tradeoffs · references</p></div><span class="status-badge">evidence-backed</span>
+          </article>
+          <article class="artifact-card plan-artifact">
+            <div class="artifact-icon">P</div><div><small>Ordered curriculum</small><strong>LEARNING_PLAN.md</strong><p>One source function per stable step</p></div><span class="status-badge">M01-S01</span>
+          </article>
+          <article class="artifact-card notes-artifact">
+            <div class="artifact-icon">N</div><div><small>Durable understanding</small><strong>LEARNING_NOTES/</strong><p>Answers · feedback · takeaways · experiments</p></div><span class="status-badge">saved</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="lesson-example reveal">
+        <div class="code-pane">
+          <div class="pane-head"><span>Simplified function</span><small>pedagogical · non-production</small></div>
+          <pre aria-label="Simplified source function"><code><span class="ln">01</span> async function dispatch(request) {
+<span class="ln">02</span>   const route = router.match(request);
+<span class="ln">03</span>   if (!route) return notFound();
+<span class="ln">04</span>
+<span class="ln">05</span>   const permit = await limiter.acquire();
+<span class="ln">06</span>   try {
+<span class="ln">07</span>     return await route.handler(request);
+<span class="ln">08</span>   } finally {
+<span class="ln">09</span>     permit.release();
+<span class="ln">10</span>   }
+<span class="ln">11</span> }</code></pre>
+        </div>
+        <div class="question-pane">
+          <div class="pane-head"><span>Adaptive review</span><small>Question 2 of 6</small></div>
+          <div class="question-bubble"><span>Q</span><p>Why must the permit be released in a <code>finally</code> block, and what production symptom appears if line 07 throws without it?</p></div>
+          <div class="answer-bubble"><span>You</span><p>Otherwise failed handlers leak capacity, eventually preventing new requests from acquiring permits.</p></div>
+          <div class="feedback-bubble"><span>✓</span><div><strong>Correct. One detail to add:</strong><p>Cancellation is also an exceptional exit. The invariant is one release for every successful acquire across all exits.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section principles">
+      <div class="section-heading compact reveal">
+        <div class="eyebrow"><span></span> Built for deliberate practice</div>
+        <h2>Learning artifacts,<br><em>not chat exhaust.</em></h2>
+      </div>
+      <div class="principle-grid">
+        <article class="reveal"><span>01</span><h3>State lives in files</h3><p>Markdown trackers and session notes make progress inspectable, editable, and independent of chat memory.</p></article>
+        <article class="reveal"><span>02</span><h3>Questions stay interactive</h3><p>The skills wait for your reasoning. They do not reveal a complete answer before you have made a decision.</p></article>
+        <article class="reveal"><span>03</span><h3>Feedback names consequences</h3><p>Gaps are connected to concrete failure modes—data loss, overload, stale state, security exposure, or operational cost.</p></article>
+        <article class="reveal"><span>04</span><h3>Evidence beats confidence</h3><p>Source paths, symbols, line ranges, specifications, and primary documentation keep explanations verifiable.</p></article>
+      </div>
+    </section>
+
+    <section class="section install" id="install">
+      <div class="install-card reveal">
+        <div class="install-copy">
+          <div class="eyebrow light"><span></span> Start learning</div>
+          <h2>One install.<br>Two deep practice loops.</h2>
+          <p>Install from GitHub, reload Pi, and choose a blank-canvas design or a repository you want to understand.</p>
+          <a href="https://github.com/The-JiahaoJiang/oh-my-skills" class="button button-light">View source on GitHub <span>↗</span></a>
+        </div>
+        <div class="terminal" aria-label="Installation commands">
+          <div class="terminal-head"><div><i></i><i></i><i></i></div><span>terminal</span><button class="copy-button" type="button" data-copy="pi install git:github.com/The-JiahaoJiang/oh-my-skills" aria-label="Copy installation command">Copy</button></div>
+          <div class="terminal-body">
+            <div><span class="prompt">$</span><code>pi install git:github.com/The-JiahaoJiang/oh-my-skills</code></div>
+            <div class="terminal-result">✓ Package installed · 2 skills discovered</div>
+            <div><span class="prompt">›</span><code>/reload</code></div>
+            <div><span class="prompt">›</span><code>/skill:start-design</code></div>
+            <div class="or"><span></span>or<span></span></div>
+            <div><span class="prompt">›</span><code>/skill:learn-project my-repository</code></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#top"><span class="brand-mark">OM</span><span>Oh My Skills</span></a>
+    <p>Persistent architecture practice for curious engineers.</p>
+    <div><a href="https://github.com/The-JiahaoJiang/oh-my-skills">GitHub</a><a href="https://pi.dev">Pi</a><span>© <span id="year"></span></span></div>
+  </footer>
+</body>
+</html>
