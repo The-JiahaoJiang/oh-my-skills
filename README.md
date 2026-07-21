@@ -2,6 +2,10 @@
 
 A collection of reusable [Pi](https://pi.dev) agent skills for structured engineering practice.
 
+**[Explore the interactive project site →](https://the-jiahaojiang.github.io/oh-my-skills/)**
+
+The site visualizes both learning workflows with architecture graphs, draft-to-revised examples, source-learning diagrams, and installation instructions. It is built and deployed to GitHub Pages by GitHub Actions on every relevant push to `main`.
+
 ## Included skills
 
 ### `start-design`

@@ -8,6 +8,12 @@
     "pi-skills",
     "system-design"
   ],
+  "scripts": {
+    "build:site": "node scripts/build-site.mjs"
+  },
+  "files": [
+    "skills"
+  ],
   "pi": {
     "skills": [
       "./skills"
