@@ -1,0 +1,16 @@
+{
+  "name": "oh-my-skills",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reusable skills for the Pi coding agent",
+  "keywords": [
+    "pi-package",
+    "pi-skills",
+    "system-design"
+  ],
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
+  }
+}
