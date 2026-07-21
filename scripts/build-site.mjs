@@ -16,6 +16,7 @@ const requiredMarkers = [
   'id="start-design"',
   'id="learn-project"',
   'aria-label="Start Design learning flow"',
+  '/skill:start-design SD-01',
   'aria-label="Learn Project source-learning flow"',
   'id="publish-skill"',
   'aria-label="Publish Skill release workflow"',

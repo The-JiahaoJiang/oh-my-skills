@@ -1,6 +1,6 @@
 ---
 name: start-design
-description: Creates SYSTEM_DESIGN.md and SYSTEM_DESIGN.html when missing, then runs the next interactive system-design exercise, coaches the first five designs, interviews on later designs, and records completed designs. Use when the user invokes /skill:start-design or asks to start or continue the system-design curriculum.
+description: Creates SYSTEM_DESIGN.md and SYSTEM_DESIGN.html when missing, then runs the next or explicitly requested system-design exercise, coaches the first five designs, interviews on later designs, and records completed designs. Use when the user invokes /skill:start-design [SD-XX], asks for a specific exercise such as SD-01, or asks to start or continue the system-design curriculum.
 ---
 
 # Start Design
@@ -13,10 +13,31 @@ Run one stateful, interactive system-design curriculum using the repository's `S
 2. If it is absent, choose the Git repository root as the target directory (`git rev-parse --show-toplevel`). If the current directory is not in a Git repository, use the current directory. Run `python scripts/render_report.py --root <target-directory> --init`, resolving the script relative to this skill directory. This copies the bundled curriculum from `assets/SYSTEM_DESIGN.md`, stamps the current local date, and generates `SYSTEM_DESIGN.html`. Never overwrite an existing tracker during initialization.
 3. Inspect both generated files. Verify that the Markdown contains all 40 checklist items and that the HTML passes the checks under **Maintain the HTML report**. Report links to both files and stop; begin the first exercise only on a later invocation.
 4. If the tracker exists, read the whole file before every session. Never rely only on chat memory: the file is authoritative.
-5. Parse checklist IDs in order. Select the first unchecked item (`- [ ]`). If all are checked, congratulate the learner, summarize overall progress, and do not invent another issue unless asked.
+5. Parse checklist IDs and any requested issue using **Requested issue selection** below. When no issue is requested, select the first unchecked item (`- [ ]`). If all are checked, congratulate the learner, summarize overall progress, and do not invent another issue unless asked.
 6. Review any existing solved-design sections so coaching can address recurring strengths and gaps.
 
 If an existing tracker is malformed, explain the problem and stop rather than silently replacing it.
+
+## Requested issue selection
+
+Allow the learner to start a particular exercise by passing its ID, for example:
+
+```text
+/skill:start-design SD-01
+/skill:start-design SD-17
+```
+
+Apply these rules before choosing the first unchecked issue:
+
+1. Search the skill arguments and the user's request for exactly one standalone issue ID, case-insensitively.
+2. Accept the canonical form `SD-01` through `SD-40`. Also accept the common letter-`O` typo in the numeric portion, such as `SD-O1`, and normalize it to `SD-01`. Do not treat arbitrary words containing `sd` as IDs.
+3. Reject `SD-00`, IDs above `SD-40`, malformed IDs, or multiple different IDs. State the valid range and ask for one ID; do not silently choose another exercise.
+4. Resolve the normalized ID against the actual checklist and use that issue even when earlier issues remain unchecked. The exercises are selectable independently; ordered progress is the default path, not a prerequisite constraint.
+5. State when the requested issue is out of the normal sequence and leave other checkboxes unchanged.
+6. If the requested issue is already complete and has a solved-design section, summarize that status and ask whether the learner wants a review. Do not clear its checkbox, overwrite the solved record, or start a duplicate completion flow without explicit permission.
+7. If initialization created the tracker in this invocation, still stop after reporting the generated Markdown and HTML. Tell the learner to invoke `/skill:start-design <normalized-ID>` again; do not begin the requested exercise in the initialization turn.
+
+The selected ID controls the mode: SD-01 through SD-05 are guided, and SD-06 through SD-40 are interview-style. A manually selected issue does not change the tracker's `Current issue` field until completion is persisted.
 
 ## Maintain the HTML report
 

@@ -173,11 +173,29 @@ After each user reply:
 
 Do not penalize wording differences. After giving feedback and the recommended answer, ask exactly one next question in the same response and wait again. Continue this feedback-then-one-question cycle until the planned questions are complete or 10 questions have been asked.
 
-If the user does not answer the current question, ask only that question again or clarify it; do not advance. If the user explicitly chooses to skip it, record the answer as `Skipped` and proceed to exactly one next question. Do not create the completed session record until every asked question has an answer or is explicitly skipped. After the final answer, provide its feedback and recommended answer, then proceed to record the session without asking another question.
+Maintain an internal question ledger with one entry per asked question: question number, answer status, feedback status, and whether another question follows. Before asking question N+1, confirm that feedback for question N has already been shown to the user.
+
+If the user does not answer the current question, ask only that question again or clarify it; do not advance. If the user explicitly chooses to skip it, record the answer as `Skipped`, still provide the recommended answer and reasoning, and proceed to exactly one next question when one remains.
+
+### Final-answer feedback checkpoint
+
+The final question follows the same feedback contract as every earlier question. It is not a signal to skip directly to persistence.
+
+In the response to the final answer, perform these actions in this exact order:
+
+1. label the section `Feedback on question N (final)`;
+2. summarize the learner's answer;
+3. state what is correct;
+4. identify omissions or misconceptions constructively;
+5. provide the recommended answer and reasoning grounded in simplified line numbers and original source where useful;
+6. state that the question round is complete;
+7. only then create the session record and update progress, without asking another question.
+
+Do not call file-writing tools, announce completion, mark a checkbox, or move directly to takeaways before the final feedback and recommended answer have been displayed. A skipped final question still requires a clearly labeled recommended answer. Before persistence, verify from the question ledger that every asked question has an answer or explicit `Skipped` status **and** displayed feedback. If final feedback was omitted, provide it immediately and defer persistence until afterward. If conversation context is insufficient to reconstruct the final answer accurately, ask the learner to restate it rather than fabricating feedback.
 
 ### 4. Record the session
 
-After feedback is complete, create the module-level session markdown file. It must include:
+After all feedback—including the explicitly displayed final-answer feedback—is complete, create the module-level session markdown file. Never use the session note as a substitute for showing final feedback in the conversation. It must include:
 
 - date, analyzed revision, step ID, module, function, and original source location;
 - architectural context and learning objectives;
@@ -199,4 +217,4 @@ Only after the session record is successfully written:
 4. preserve stable IDs and unrelated user edits;
 5. report the completed step, note path, progress count, and next eligible step.
 
-Never mark progress complete before recording the user's answers and feedback. Do not start the next quiz in the same response unless the user asks to continue.
+Never mark progress complete before recording the user's answers and feedback. Final-answer feedback must have been shown in the conversation before this update begins. Do not start the next quiz in the same response unless the user asks to continue.
