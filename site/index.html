@@ -262,6 +262,14 @@
         </div>
         <div class="question-pane">
           <div class="pane-head"><span>Adaptive review</span><small>Question 2 of 6</small></div>
+          <div class="focus-excerpt" aria-label="Focused code repeated with the question">
+            <div class="focus-label"><strong>Focus keyword</strong><mark><code>finally</code></mark></div>
+            <pre><code><span>06 |</span> try {
+<span>07 |</span>   return await route.handler(request);
+<b>▶ 08 |</b> } finally {
+<span>09 |</span>   permit.release();
+<span>10 |</span> }</code></pre>
+          </div>
           <div class="question-bubble"><span>Q</span><p>Why must the permit be released in a <code>finally</code> block, and what production symptom appears if line 07 throws without it?</p></div>
           <div class="answer-bubble"><span>You</span><p>Otherwise failed handlers leak capacity, eventually preventing new requests from acquiring permits.</p></div>
           <div class="feedback-bubble"><span>✓</span><div><strong>Correct. One detail to add:</strong><p>Cancellation is also an exceptional exit. The invariant is one release for every successful acquire across all exits.</p></div></div>

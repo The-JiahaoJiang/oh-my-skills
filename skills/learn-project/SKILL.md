@@ -242,6 +242,33 @@ If the original is already short, show it with only minimal normalization. Other
 
 Ask at most 10 open-ended questions over the entire learning step, but present exactly one question per turn. Never display a list or preview of upcoming questions. Number questions sequentially so they can be recorded later.
 
+Immediately before every question, repeat a small, self-contained piece of the code needed to reason about it so the learner never has to scroll back to the full simplified function. Use this shape:
+
+````markdown
+### Question 1
+
+**Focus keyword — `finally`**
+
+```text
+06 | try {
+07 |   return await handler(request)
+▶ 08 | } finally {
+09 |   permit.release()
+10 | }
+```
+
+Why is the cleanup placed in `finally` rather than after the awaited call?
+````
+
+Apply these context rules:
+
+- select the smallest useful excerpt, normally 3–12 contiguous lines, and retain the simplified function's pedagogical line numbers;
+- use `▶` to mark the single most relevant line and bold the entire `Focus keyword — <token>` line so the exact token, identifier, operator, or short phrase being examined is visually prominent;
+- treat `▶` as a display marker, not part of the code; otherwise reproduce the previously shown simplified code exactly;
+- include enough surrounding control/data-flow context to make the question understandable, but do not repeat the whole function unless it is already very short;
+- when a question genuinely depends on an inspected caller, callee, type, or test that was not in the simplified function, show a similarly short excerpt, label its repository-relative source location, and do not imply that its line numbers are pedagogical lines from the simplified function;
+- do not use the highlighted keyword or excerpt as a hint that reveals the recommended answer.
+
 Do not provide multiple-choice options, hints that reveal the answer, or the recommended answer before the user replies. Tailor the sequence to the function and, where useful, adapt later questions to the user's earlier answers. Across the step, cover the most relevant of:
 
 - control/data flow and invariants;
@@ -263,11 +290,11 @@ After each user reply:
 - provide the recommended answer and reasoning, grounded in the code;
 - cite simplified line numbers and original source symbols/locations where useful.
 
-Do not penalize wording differences. After giving feedback and the recommended answer, ask exactly one next question in the same response and wait again. Continue this feedback-then-one-question cycle until the planned questions are complete or 10 questions have been asked.
+Do not penalize wording differences. After giving feedback and the recommended answer, ask exactly one next question in the same response and wait again. Immediately precede that next question with its own focused code excerpt and highlighted focus keyword using the format above. Continue this feedback-then-context-then-one-question cycle until the planned questions are complete or 10 questions have been asked.
 
-Maintain an internal question ledger with one entry per asked question: question number, answer status, feedback status, and whether another question follows. Before asking question N+1, confirm that feedback for question N has already been shown to the user.
+Maintain an internal question ledger with one entry per asked question: question number, focus keyword, displayed code excerpt, answer status, feedback status, and whether another question follows. Before asking question N+1, confirm that feedback for question N has already been shown to the user.
 
-If the user does not answer the current question, ask only that question again or clarify it; do not advance. If the user explicitly chooses to skip it, record the answer as `Skipped`, still provide the recommended answer and reasoning, and proceed to exactly one next question when one remains.
+If the user does not answer the current question, repeat its focused code excerpt and highlighted keyword, then ask only that question again or clarify it; do not advance. If the user explicitly chooses to skip it, record the answer as `Skipped`, still provide the recommended answer and reasoning, and proceed to exactly one next question—with its own context block—when one remains.
 
 ### Final-answer feedback checkpoint
 
@@ -292,7 +319,7 @@ After all feedback—including the explicitly displayed final-answer feedback—
 - date, analyzed revision, step ID, module, function, and original source location;
 - architectural context and learning objectives;
 - the exact simplified function shown, with its pedagogical line numbers;
-- every question;
+- every question together with the focus keyword and focused code excerpt that accompanied it;
 - the user's answer (verbatim when practical; otherwise clearly marked as a faithful summary);
 - feedback and the recommended answer;
 - key takeaways and optional follow-up experiments/tests.

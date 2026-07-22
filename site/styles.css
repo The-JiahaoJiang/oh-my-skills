@@ -261,6 +261,12 @@ h1 em, h2 em { color: var(--purple); font-style: normal; }
 .ln { display: inline-block; width: 30px; color: #445067; user-select: none; }
 .question-pane { min-width: 0; }
 .question-pane > div:not(.pane-head) { margin: 19px 22px; }
+.focus-excerpt { overflow: hidden; border: 1px solid rgba(98,223,194,.2); border-radius: 13px; background: rgba(98,223,194,.035); }
+.focus-label { padding: 9px 13px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(98,223,194,.14); color: var(--subtle); font: 8px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .07em; }
+.focus-label mark { padding: 3px 7px; border-radius: 5px; color: #09130f; background: var(--mint); text-transform: none; }
+.focus-excerpt pre { margin: 0; padding: 13px 15px; overflow-x: auto; color: #b9c5d7; font-size: 9px; line-height: 1.75; }
+.focus-excerpt pre span { color: #536078; }
+.focus-excerpt pre b { color: var(--mint); font-weight: 500; }
 .question-bubble, .feedback-bubble { padding: 17px; display: flex; gap: 12px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.025); }
 .question-bubble > span, .feedback-bubble > span { flex: 0 0 27px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 8px; color: var(--purple); background: rgba(148,130,255,.1); font: 10px "DM Mono", monospace; }
 .question-bubble p, .answer-bubble p, .feedback-bubble p { margin: 0; color: #c8d0df; font-size: 11px; }
