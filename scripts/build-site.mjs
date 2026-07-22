@@ -23,6 +23,10 @@ const requiredMarkers = [
   '/skill:learn-project ../my-repository',
   'PROJECT_LEARNING/redis--3a71c9e2/',
   '<strong>PROJECT.json</strong>',
+  'id="python-master"',
+  'aria-label="Python Master notebook learning flow"',
+  '/skill:python-master [PM-XX]',
+  'PYTHON_MASTER_PROGRESS.json',
   'id="publish-skill"',
   'aria-label="Publish Skill release workflow"',
   '/skill:publish-skill',
@@ -34,6 +38,7 @@ for (const marker of requiredMarkers) {
 const skillFiles = [
   ["start-design", "skills/start-design/SKILL.md"],
   ["learn-project", "skills/learn-project/SKILL.md"],
+  ["python-master", "skills/python-master/SKILL.md"],
 ];
 for (const [name, relativePath] of skillFiles) {
   const contents = await readFile(resolve(root, relativePath), "utf8");

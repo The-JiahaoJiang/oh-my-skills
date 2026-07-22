@@ -4,10 +4,10 @@ For skill descriptions, workflow diagrams, examples, and usage details, visit th
 
 ## Install
 
-Install the Python dependency used by the `start-design` HTML renderer:
+Install the Python dependencies used by the `start-design` renderer and the `python-master` Jupyter curriculum:
 
 ```bash
-python -m pip install markdown
+python -m pip install markdown jupyterlab notebook
 ```
 
 Install the package from GitHub:

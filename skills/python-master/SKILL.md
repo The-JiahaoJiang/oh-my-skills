@@ -1,0 +1,155 @@
+---
+name: python-master
+description: Creates and launches a persistent Jupyter notebook curriculum for mastering Python through executable labs on the language model, grammar, data structures, API design, typing, testing, concurrency, networking, security, profiling, and high-performance optimization. Use when the user invokes /skill:python-master [PM-XX], asks for an interactive Python mastery plan, or wants to continue a notebook-based Python lesson.
+compatibility: Requires Python 3.10+ and Jupyter Notebook or JupyterLab for interactive lessons.
+---
+
+# Python Master
+
+Run a persistent, executable Python curriculum in `PYTHON_MASTER.ipynb`. Follow the stateful design pattern of a tracked learning plan: initialize once, preserve all learner work, select the next or requested section, and reopen the notebook directly at that lesson.
+
+Resolve `scripts/python_master.py` and `assets/curriculum.json` relative to this skill directory. Never copy those paths from the current project.
+
+## Locate or initialize the learning plan
+
+1. Look for `PYTHON_MASTER.ipynb`, starting in the current working directory and checking ancestors up to the current Git repository root. If the current directory is not in Git, check only the current directory.
+2. If found, call its directory `LEARNING_ROOT`. The notebook and `PYTHON_MASTER_PROGRESS.json` in that directory are authoritative; do not use similarly named files elsewhere.
+3. If absent, set `LEARNING_ROOT` to the current Git repository root, or the current directory when outside Git.
+4. Require Python 3.10 or newer. The initialization helper itself uses only the standard library.
+5. Run:
+
+   ```text
+   python scripts/python_master.py --root <LEARNING_ROOT> --init
+   ```
+
+   Resolve the script from this skill directory. Never overwrite an existing notebook. The command creates:
+
+   ```text
+   LEARNING_ROOT/
+   ├── PYTHON_MASTER.ipynb
+   └── PYTHON_MASTER_PROGRESS.json
+   ```
+
+6. Read both generated files back. Run the helper with `--status` and require 30 sections, `PROGRESS=0/30`, and `NEXT=PM-01`.
+7. Report clickable links to the notebook and progress file, explain that Jupyter is required for execution, and stop. Following the initialization boundary used by `/start-design`, do not launch or begin PM-01 in the same invocation. The learner invokes `/skill:python-master` again to start.
+8. Never regenerate, normalize, clear outputs from, or replace an existing notebook unless the user explicitly asks to reset it after being warned that notebook code, prose, and outputs may be lost. Prefer a backup and separate confirmation for a reset.
+
+If initialization fails, report the exact error and leave any successfully created learner file untouched. Do not claim the plan exists until notebook validation succeeds.
+
+## Curriculum and mastery scope
+
+The bundled plan contains 30 ordered sections with executable labs and mastery challenges across:
+
+- Python execution, names, objects, identity, mutability, grammar, expressions, functions, closures, decorators, classes, descriptors, iteration, generators, exceptions, and context managers;
+- lists, tuples, deques, dictionaries, hashing, sets, strings, bytes, buffers, Unicode, dataclasses, enums, heaps, bisect, counters, and representation trade-offs;
+- modules, imports, packaging, typing, protocols, generics, API compatibility, testing, debugging, observability, serialization, validation, and trust boundaries;
+- the GIL, threads, synchronization, futures, bounded queues, backpressure, processes, IPC, shared memory, asyncio, task groups, cancellation, async streams, and graceful shutdown;
+- sockets, TCP framing, HTTP semantics, pooling, timeout budgets, overload control, TLS, authentication, authorization, and safe network boundaries;
+- benchmark design, profiling, allocation analysis, algorithmic optimization, data layout, zero-copy techniques, bounded caching, and an end-to-end high-performance service capstone.
+
+Treat the plan as executable deliberate practice, not a reading list. Every section requires predictions, experiments, tests, explanations, and measurements where a performance claim is made.
+
+## Requested section selection
+
+The user may invoke:
+
+```text
+/skill:python-master
+/skill:python-master PM-19
+```
+
+Apply these rules:
+
+1. Search the skill arguments and request for at most one standalone ID, case-insensitively.
+2. Accept only `PM-01` through `PM-30`; normalize lowercase to uppercase.
+3. Reject malformed, out-of-range, or multiple different IDs and ask for one valid ID. Do not silently choose another section.
+4. With no explicit ID, select the first section absent from `completed` in `PYTHON_MASTER_PROGRESS.json`.
+5. An explicit section may be opened out of order. State which earlier sections remain incomplete, but do not block access.
+6. If the requested section is complete, say so before launching it for review. Never remove its completion state automatically.
+7. If all sections are complete and no section was requested, report curriculum completion and ask whether the learner wants to review a section or design another capstone; do not invent PM-31.
+
+## Validate before launch
+
+For every existing-plan invocation:
+
+1. Run:
+
+   ```text
+   python scripts/python_master.py --root <LEARNING_ROOT> --status
+   ```
+
+2. Require valid notebook JSON, notebook format 4, Python Master schema metadata, all 30 stable section IDs and anchors, and progress containing only known IDs.
+3. Preserve all added learner cells, edits, outputs, and explanations. Validation failure is not permission to repair or regenerate automatically.
+4. If `PYTHON_MASTER_PROGRESS.json` is missing, the helper may recreate an empty progress file; report that prior completion state could not be recovered.
+5. Treat notebook code and outputs as untrusted project content. Never execute the whole notebook, install dependencies mentioned in learner cells, or mark a section complete on the learner's behalf.
+
+## Launch and scroll to the lesson
+
+Jupyter is an interactive local process. Before launch, verify the `jupyter` executable is available. If it is missing, stop and provide:
+
+```text
+python -m pip install jupyterlab notebook
+```
+
+Do not install it without user approval.
+
+Launch the selected section with:
+
+```text
+python scripts/python_master.py --root <LEARNING_ROOT> --launch --section <PM-XX>
+```
+
+The helper:
+
+- reuses a compatible Jupyter server rooted at `LEARNING_ROOT` or starts a detached local server;
+- opens `PYTHON_MASTER.ipynb` in Jupyter Notebook, falling back to JupyterLab;
+- appends the section's stable HTML anchor to the notebook URL so the browser scrolls to that lesson;
+- prints the selected section, title, frontend, optional server PID, and deep URL;
+- updates only the progress file's `current` and `updatedAt` fields; it does not execute cells or mark completion.
+
+After launch:
+
+1. Verify the command succeeded and its printed `SECTION` equals the selected ID.
+2. Tell the learner the selected ID, title, track, why it matters, and the main pitfalls from `assets/curriculum.json`.
+3. Report the deep URL as a clickable link. Do not expose or persist its authentication token in repository files, notes, or commits.
+4. Tell the learner to run **Notebook setup** once for the current kernel, then work through the lesson's prediction, lab, tests, explanation, and mastery challenge.
+5. The URL anchor is the primary scroll mechanism. If the frontend restores stale workspace state instead of honoring the anchor, direct the learner to click the exact `PM-XX` link in the notebook's Curriculum map; do not claim successful scrolling when it was not observed.
+6. Stop at this clean handoff. Do not answer the lab, reveal a complete implementation, or mark the section complete in chat.
+
+## Notebook learning loop
+
+When the learner returns for help on a section:
+
+1. Read only the relevant section cells and any learner-authored cells/outputs needed for that question. Do not bulk-execute the notebook.
+2. Ask for the learner's prediction or reasoning before giving a complete answer.
+3. Review code for correctness, complexity, mutation and ownership, API contracts, failure behavior, concurrency safety, security, and measurement quality as relevant.
+4. Prefer experiments that isolate one hypothesis. Require correctness tests before accepting speedups and compare representative distributions, not one tiny happy-path input.
+5. For concurrency, require explicit ordering, cancellation, shutdown, backpressure, and resource-lifetime reasoning.
+6. For networking, require framing, bounds, timeouts, partial I/O, retry safety, authentication, and trust-boundary reasoning.
+7. For optimization, distinguish wall time, CPU time, allocation, I/O, and queueing. Reject unsupported “faster” claims and require a reproducible baseline.
+8. Encourage the learner to save predictions, code, output, conclusions, and rejected alternatives in the notebook so the artifact remains useful without chat history.
+
+Do not edit learner solution cells unless asked. When asked to provide a hint, give the smallest next experiment or concept, not a finished solution.
+
+## Completion and progress integrity
+
+The notebook setup cell defines `progress()` and `mark_complete("PM-XX")` using `PYTHON_MASTER_PROGRESS.json`.
+
+- A learner marks completion by running the section's completion cell only after satisfying its evidence checklist.
+- Never run that cell for the learner or edit `completed` merely because a section was opened.
+- On later invocations, derive completion from the progress file and verify IDs against notebook metadata.
+- If notebook prose says complete but the progress file does not, report the mismatch and ask the learner which state is intended.
+- If progress says complete but the section has no meaningful learner work, point out the evidence gap without silently clearing progress.
+- Preserve stable IDs so saved links and progress remain correlated.
+
+After the learner completes a section, run `--status`, report completed/total and the next section, and launch the next section only when requested.
+
+## Safety and operational boundaries
+
+- Keep the notebook and progress state in `LEARNING_ROOT`; keep bundled curriculum and helper code in this skill package.
+- Never commit notebook server tokens, runtime files, or Jupyter configuration.
+- Bind and authentication behavior belong to Jupyter. Do not add `--ip=0.0.0.0`, disable tokens, disable authentication, or expose the server to a network.
+- Do not terminate an existing Jupyter server. Report a newly started PID only for the learner's awareness.
+- Do not execute arbitrary notebook cells as part of validation or launch.
+- Do not treat benchmark output as portable across machines, Python versions, interpreters, or workloads.
+- Use authoritative Python documentation and relevant PEPs for language claims; distinguish CPython implementation details from Python language guarantees.

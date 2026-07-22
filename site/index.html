@@ -26,6 +26,7 @@
       <a href="#skills">Skills</a>
       <a href="#start-design">Start Design</a>
       <a href="#learn-project">Learn Project</a>
+      <a href="#python-master">Python Master</a>
       <a href="#publish-skill">Publish Skill</a>
       <a href="#install">Install</a>
     </nav>
@@ -35,9 +36,9 @@
   <main id="main">
     <section class="hero section" id="top">
       <div class="hero-copy reveal">
-        <div class="eyebrow"><span></span> Three persistent engineering workflows for Pi</div>
+        <div class="eyebrow"><span></span> Four persistent engineering workflows for Pi</div>
         <h1>Don’t memorize architecture.<br><em>Reason through it.</em></h1>
-        <p class="hero-lead">Practice system design from rough draft to defensible decisions, then learn production repositories one function at a time—with feedback, evidence, and progress that survives every session.</p>
+        <p class="hero-lead">Practice system design, learn production repositories one function at a time, master Python in executable labs, and publish reusable skills—with evidence and progress that survive every session.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="#install">Install the skills <span aria-hidden="true">↓</span></a>
           <a class="button button-secondary" href="#skills">Explore workflows</a>
@@ -88,7 +89,7 @@
       <div class="section-heading reveal">
         <div class="eyebrow"><span></span> Choose your learning path</div>
         <h2>From blank canvas to<br><em>production source.</em></h2>
-        <p>Three focused skills turn open-ended work into ordered loops: practice a new architecture, study a real repository, or publish a skill with every related surface synchronized.</p>
+        <p>Four focused skills turn open-ended work into ordered loops: practice architecture, study production source, master Python in executable notebooks, or publish a skill with every related surface synchronized.</p>
       </div>
       <div class="skill-grid">
         <article class="skill-card skill-card-purple reveal">
@@ -121,22 +122,32 @@
           </ul>
           <a href="#learn-project">See the source loop <span>→</span></a>
         </article>
-        <article class="skill-card skill-card-amber skill-card-wide reveal">
+        <article class="skill-card skill-card-blue reveal">
           <div class="skill-number">03</div>
+          <div class="skill-icon" aria-hidden="true">Py</div>
+          <div class="skill-label">Executable curriculum</div>
+          <h3>Python Master</h3>
+          <p>Work through a persistent 30-section Jupyter notebook that joins language semantics, production pitfalls, concurrency, networking, and measured optimization.</p>
+          <ul>
+            <li>Executable prediction-and-experiment labs</li>
+            <li>Stable PM-01 through PM-30 sections</li>
+            <li>Direct launch to the next notebook anchor</li>
+            <li>Durable progress outside chat history</li>
+          </ul>
+          <a href="#python-master">See the notebook loop <span>→</span></a>
+        </article>
+        <article class="skill-card skill-card-amber reveal">
+          <div class="skill-number">04</div>
           <div class="skill-icon" aria-hidden="true">↑</div>
-          <div class="skill-card-body">
-            <div>
-              <div class="skill-label">Release automation</div>
-              <h3>Publish Skill</h3>
-              <p>Import or refresh a skill, synchronize package and documentation surfaces, validate every artifact, and publish a verified GitHub release.</p>
-            </div>
-            <ul>
-              <li>Safe skill import and frontmatter validation</li>
-              <li>README and visual showcase synchronization</li>
-              <li>Package, site, and global-install checks</li>
-              <li>Commit, Actions, and live Pages verification</li>
-            </ul>
-          </div>
+          <div class="skill-label">Release automation</div>
+          <h3>Publish Skill</h3>
+          <p>Import or refresh a skill, synchronize package and documentation surfaces, validate every artifact, and publish a verified GitHub release.</p>
+          <ul>
+            <li>Safe skill import and frontmatter validation</li>
+            <li>README and visual showcase synchronization</li>
+            <li>Package, site, and global-install checks</li>
+            <li>Commit, Actions, and live Pages verification</li>
+          </ul>
           <a href="#publish-skill">See the release loop <span>→</span></a>
         </article>
       </div>
@@ -277,6 +288,59 @@
       </div>
     </section>
 
+    <section class="section feature python-feature" id="python-master">
+      <div class="feature-header reveal">
+        <div>
+          <div class="eyebrow blue"><span></span> /skill:python-master [PM-XX]</div>
+          <h2>Learn Python where it<br><em>actually executes.</em></h2>
+        </div>
+        <p>Generate one persistent Jupyter notebook, then reopen it at the next or requested lesson. Every section turns semantics and pitfalls into predictions, runnable experiments, tests, explanations, and measurements.</p>
+      </div>
+
+      <div class="python-flow reveal" role="group" aria-label="Python Master notebook learning flow">
+        <article><span>01</span><small>Missing plan</small><strong>Generate notebook</strong><p>Create 30 stable sections and a separate progress file without overwriting learner work.</p></article>
+        <i aria-hidden="true">→</i>
+        <article><span>02</span><small>Select</small><strong>Next or PM-XX</strong><p>Resume the first incomplete lesson or jump directly to a requested topic.</p></article>
+        <i aria-hidden="true">→</i>
+        <article><span>03</span><small>Launch</small><strong>Deep notebook link</strong><p>Start local Jupyter and open the stable section anchor instead of searching manually.</p></article>
+        <i aria-hidden="true">→</i>
+        <article><span>04</span><small>Practice</small><strong>Predict · code · test</strong><p>Record experiments, outputs, explanations, and performance evidence in the notebook.</p></article>
+        <i aria-hidden="true">→</i>
+        <article><span>05</span><small>Persist</small><strong>Mark complete</strong><p>Advance durable progress only after the section evidence checklist is satisfied.</p></article>
+      </div>
+
+      <div class="notebook-example reveal">
+        <div class="notebook-window">
+          <div class="notebook-head"><span>PYTHON_MASTER.ipynb</span><small>Python 3 · trusted by you</small></div>
+          <div class="notebook-cell markdown-cell">
+            <span class="cell-kind">Markdown</span>
+            <small>Concurrency · PM-22</small>
+            <h3>Asyncio tasks, event loops, and cancellation</h3>
+            <p>Predict what remains alive when the parent task is cancelled at each <code>await</code>.</p>
+          </div>
+          <div class="notebook-cell code-cell">
+            <span class="cell-kind">Code</span>
+            <pre><code><span>In [ ]:</span> async with asyncio.TaskGroup() as group:
+             group.create_task(fetch("/a"))
+             group.create_task(fetch("/b"))</code></pre>
+          </div>
+          <div class="notebook-cell output-cell">
+            <span class="cell-kind">Evidence</span>
+            <p>Tests cover success, timeout, child failure, parent cancellation, and resource cleanup.</p>
+          </div>
+        </div>
+        <aside class="python-tracks" aria-label="Python Master curriculum tracks">
+          <div><span>06</span><strong>Language model</strong><small>objects · grammar · descriptors · generators</small></div>
+          <div><span>06</span><strong>Data structures</strong><small>hashing · buffers · records · specialized collections</small></div>
+          <div><span>06</span><strong>API &amp; architecture</strong><small>typing · testing · trust · packaging</small></div>
+          <div><span>05</span><strong>Concurrency</strong><small>threads · processes · asyncio · backpressure</small></div>
+          <div><span>04</span><strong>Networking</strong><small>TCP · HTTP · overload · TLS</small></div>
+          <div><span>03</span><strong>Performance</strong><small>profiling · layout · capstone</small></div>
+          <p><strong>30 sections.</strong> Progress lives in <code>PYTHON_MASTER_PROGRESS.json</code>; notebook cells are never auto-executed.</p>
+        </aside>
+      </div>
+    </section>
+
     <section class="section feature publish-feature" id="publish-skill">
       <div class="feature-header reveal">
         <div>
@@ -343,7 +407,7 @@
         <h2>Learning artifacts,<br><em>not chat exhaust.</em></h2>
       </div>
       <div class="principle-grid">
-        <article class="reveal"><span>01</span><h3>State lives in files</h3><p>Markdown trackers and session notes make progress inspectable, editable, and independent of chat memory.</p></article>
+        <article class="reveal"><span>01</span><h3>State lives in files</h3><p>Markdown trackers, notebooks, and session notes make progress inspectable, editable, and independent of chat memory.</p></article>
         <article class="reveal"><span>02</span><h3>Questions stay interactive</h3><p>The skills wait for your reasoning. They do not reveal a complete answer before you have made a decision.</p></article>
         <article class="reveal"><span>03</span><h3>Feedback names consequences</h3><p>Gaps are connected to concrete failure modes—data loss, overload, stale state, security exposure, or operational cost.</p></article>
         <article class="reveal"><span>04</span><h3>Evidence beats confidence</h3><p>Source paths, symbols, line ranges, specifications, and primary documentation keep explanations verifiable.</p></article>
@@ -354,15 +418,15 @@
       <div class="install-card reveal">
         <div class="install-copy">
           <div class="eyebrow light"><span></span> Start learning</div>
-          <h2>One install.<br>Three deliberate workflows.</h2>
-          <p>Install from GitHub, reload Pi, and choose a blank-canvas design or a repository you want to understand.</p>
+          <h2>One install.<br>Four deliberate workflows.</h2>
+          <p>Install from GitHub, reload Pi, and choose a design, repository, or Python topic you want to master.</p>
           <a href="https://github.com/The-JiahaoJiang/oh-my-skills" class="button button-light">View source on GitHub <span>↗</span></a>
         </div>
         <div class="terminal" aria-label="Installation commands">
           <div class="terminal-head"><div><i></i><i></i><i></i></div><span>terminal</span><button class="copy-button" type="button" data-copy="pi install git:github.com/The-JiahaoJiang/oh-my-skills" aria-label="Copy installation command">Copy</button></div>
           <div class="terminal-body">
             <div><span class="prompt">$</span><code>pi install git:github.com/The-JiahaoJiang/oh-my-skills</code></div>
-            <div class="terminal-result">✓ Package installed · 3 skills discovered</div>
+            <div class="terminal-result">✓ Package installed · 4 skills discovered</div>
             <div><span class="prompt">›</span><code>/reload</code></div>
             <div><span class="prompt">›</span><code>/skill:start-design SD-01</code></div>
             <div class="or"><span></span>or<span></span></div>
