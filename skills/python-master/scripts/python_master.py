@@ -18,9 +18,13 @@ from urllib.parse import quote, urlencode, urljoin, urlparse, urlunparse
 
 NOTEBOOK_NAME = "PYTHON_MASTER.ipynb"
 PROGRESS_NAME = "PYTHON_MASTER_PROGRESS.json"
-SCHEMA_VERSION = 1
+NOTEBOOK_SCHEMA_VERSION = 2
+PROGRESS_SCHEMA_VERSION = 1
+CURRICULUM_SCHEMA_VERSION = 1
+GUIDED_EXAMPLES_SCHEMA_VERSION = 1
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 CURRICULUM_PATH = SKILL_ROOT / "assets" / "curriculum.json"
+GUIDED_EXAMPLES_PATH = SKILL_ROOT / "assets" / "guided_examples.json"
 
 
 def read_json(path: Path) -> Any:
@@ -37,11 +41,27 @@ def load_curriculum() -> dict[str, Any]:
     curriculum = read_json(CURRICULUM_PATH)
     sections = curriculum.get("sections", [])
     ids = [section.get("id") for section in sections]
-    if curriculum.get("schemaVersion") != SCHEMA_VERSION or not sections:
+    if curriculum.get("schemaVersion") != CURRICULUM_SCHEMA_VERSION or not sections:
         raise ValueError("Curriculum is missing or has an unsupported schema")
     if len(ids) != len(set(ids)) or any(not valid_section_id(value) for value in ids):
         raise ValueError("Curriculum contains duplicate or malformed section IDs")
     return curriculum
+
+
+def load_guided_examples(section_ids: list[str]) -> dict[str, dict[str, Any]]:
+    document = read_json(GUIDED_EXAMPLES_PATH)
+    examples = document.get("examples", {})
+    if document.get("schemaVersion") != GUIDED_EXAMPLES_SCHEMA_VERSION or not isinstance(examples, dict):
+        raise ValueError("Guided examples are missing or have an unsupported schema")
+    if set(examples) != set(section_ids):
+        raise ValueError("Guided examples must contain exactly one entry for every curriculum section")
+    for section_id, example in examples.items():
+        if not isinstance(example, dict) or not example.get("title") or not example.get("code"):
+            raise ValueError(f"Guided example {section_id} is incomplete")
+        guidance = example.get("guidance")
+        if not isinstance(guidance, list) or len(guidance) < 2 or not all(isinstance(item, str) and item for item in guidance):
+            raise ValueError(f"Guided example {section_id} needs at least two guidance prompts")
+    return examples
 
 
 def valid_section_id(value: object) -> bool:
@@ -122,7 +142,40 @@ progress()
 '''
 
 
-def build_notebook(curriculum: dict[str, Any]) -> dict[str, Any]:
+def guided_cells(section: dict[str, Any], example: dict[str, Any]) -> list[dict[str, Any]]:
+    section_id = section["id"]
+    anchor = section_anchor(section_id)
+    guidance = "\n".join(f"{index}. {item}" for index, item in enumerate(example["guidance"], 1))
+    concepts = ", ".join(f"`{item}`" for item in section["concepts"])
+    pitfalls = "\n".join(f"- Probe **{item}** by changing one input or line." for item in section["pitfalls"])
+    walkthrough = f'''### Guided walkthrough — {example["title"]}
+
+**Mental model:** Connect the example to {concepts}.
+
+**Before running**
+
+{guidance}
+
+1. Predict every printed value, exception, state transition, and side effect.
+2. Identify which behavior is a Python language guarantee and which may be CPython-specific.
+
+**After running**
+
+- Explain any difference between prediction and output.
+- Change one factor at a time and rerun; do not modify the lab scaffold yet.
+- Add a Markdown cell recording the invariant, API consequence, or performance implication.
+
+**Pitfall probes**
+
+{pitfalls}
+'''
+    return [
+        markdown_cell(f"{anchor}-guidance", walkthrough),
+        code_cell(f"{anchor}-example", example["code"]),
+    ]
+
+
+def build_notebook(curriculum: dict[str, Any], examples: dict[str, dict[str, Any]]) -> dict[str, Any]:
     sections = curriculum["sections"]
     section_ids = [section["id"] for section in sections]
     track_counts: dict[str, int] = {}
@@ -138,9 +191,9 @@ def build_notebook(curriculum: dict[str, Any]) -> dict[str, Any]:
         "## Learning contract\n",
         "\n",
         "1. Run **Notebook setup** once per kernel.\n",
-        "2. For each section, predict behavior before executing code.\n",
-        "3. Complete the lab and challenge, add tests, and record observations in new cells.\n",
-        "4. Run `mark_complete(\"PM-XX\")` only when you can explain the relevant invariants and pitfalls.\n",
+        "2. Read the guided mental model and predict the runnable example before executing it.\n",
+        "3. Explain the output, run the pitfall probes, then complete the open lab and mastery challenge.\n",
+        "4. Add tests and record observations; run `mark_complete(\"PM-XX\")` only when you can explain the relevant invariants and pitfalls.\n",
         f"5. Progress is stored beside this notebook in `{PROGRESS_NAME}`.\n",
         "\n",
         "## Curriculum map\n",
@@ -217,6 +270,7 @@ mark_complete("{section_id}")
         cells.extend(
             [
                 markdown_cell(anchor, lesson),
+                *guided_cells(section, examples[section_id]),
                 code_cell(f"{anchor}-lab", lab),
                 markdown_cell(f"{anchor}-challenge", challenge),
                 code_cell(f"{anchor}-complete", completion),
@@ -229,7 +283,7 @@ mark_complete("{section_id}")
             "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {"name": "python", "version": f"{sys.version_info.major}.{sys.version_info.minor}"},
             "python_master": {
-                "schemaVersion": SCHEMA_VERSION,
+                "schemaVersion": NOTEBOOK_SCHEMA_VERSION,
                 "createdAt": date.today().isoformat(),
                 "sectionIds": section_ids,
             },
@@ -245,7 +299,7 @@ def section_anchor(section_id: str) -> str:
 
 def initial_progress(section_ids: list[str]) -> dict[str, Any]:
     return {
-        "schemaVersion": SCHEMA_VERSION,
+        "schemaVersion": PROGRESS_SCHEMA_VERSION,
         "completed": [],
         "current": section_ids[0],
         "updatedAt": date.today().isoformat(),
@@ -260,11 +314,70 @@ def initialize(root: Path) -> tuple[Path, Path]:
         raise FileExistsError(f"Refusing to overwrite existing {notebook_path}")
     curriculum = load_curriculum()
     section_ids = [section["id"] for section in curriculum["sections"]]
-    write_json(notebook_path, build_notebook(curriculum))
+    examples = load_guided_examples(section_ids)
+    write_json(notebook_path, build_notebook(curriculum, examples))
     if not progress_path.exists():
         write_json(progress_path, initial_progress(section_ids))
     validate(root)
     return notebook_path, progress_path
+
+
+def upgrade(root: Path) -> tuple[Path, Path | None]:
+    notebook_path = root / NOTEBOOK_NAME
+    if not notebook_path.is_file():
+        raise FileNotFoundError(f"Missing {notebook_path}")
+    notebook = read_json(notebook_path)
+    metadata = notebook.get("metadata", {}).get("python_master", {})
+    version = metadata.get("schemaVersion")
+    if version == NOTEBOOK_SCHEMA_VERSION:
+        validate(root)
+        return notebook_path, None
+    if version != 1:
+        raise ValueError(f"Cannot upgrade notebook schema {version!r}")
+
+    curriculum = load_curriculum()
+    sections = curriculum["sections"]
+    section_ids = [section["id"] for section in sections]
+    if metadata.get("sectionIds") != section_ids:
+        raise ValueError("Cannot upgrade a notebook whose curriculum IDs were changed")
+    examples = load_guided_examples(section_ids)
+    cells = notebook.get("cells")
+    if not isinstance(cells, list):
+        raise ValueError("Notebook cells are malformed")
+    existing_ids = {cell.get("id") for cell in cells if isinstance(cell, dict)}
+    missing_headings = [section_anchor(section_id) for section_id in section_ids if section_anchor(section_id) not in existing_ids]
+    if missing_headings:
+        raise ValueError(f"Cannot upgrade; section headings are missing: {', '.join(missing_headings)}")
+    enriched: list[dict[str, Any]] = []
+    section_by_anchor = {section_anchor(section["id"]): section for section in sections}
+    for cell in cells:
+        enriched.append(cell)
+        if not isinstance(cell, dict):
+            continue
+        anchor = cell.get("id")
+        section = section_by_anchor.get(anchor)
+        if section is None:
+            continue
+        guidance_id = f"{anchor}-guidance"
+        example_id = f"{anchor}-example"
+        if guidance_id not in existing_ids and example_id not in existing_ids:
+            enriched.extend(guided_cells(section, examples[section["id"]]))
+        elif guidance_id not in existing_ids or example_id not in existing_ids:
+            raise ValueError(f"Section {section['id']} has a partial guided-example upgrade")
+
+    backup = notebook_path.with_name(f"{NOTEBOOK_NAME}.v1.bak")
+    suffix = 2
+    while backup.exists():
+        backup = notebook_path.with_name(f"{NOTEBOOK_NAME}.v1.bak.{suffix}")
+        suffix += 1
+    shutil.copy2(notebook_path, backup)
+    metadata["schemaVersion"] = NOTEBOOK_SCHEMA_VERSION
+    metadata["upgradedAt"] = date.today().isoformat()
+    notebook["metadata"]["python_master"] = metadata
+    notebook["cells"] = enriched
+    write_json(notebook_path, notebook)
+    validate(root)
+    return notebook_path, backup
 
 
 def validate(root: Path) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
@@ -276,7 +389,12 @@ def validate(root: Path) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
     metadata = notebook.get("metadata", {}).get("python_master", {})
     section_ids = metadata.get("sectionIds", [])
     curriculum_ids = [section["id"] for section in load_curriculum()["sections"]]
-    if notebook.get("nbformat") != 4 or metadata.get("schemaVersion") != SCHEMA_VERSION:
+    if notebook.get("nbformat") != 4:
+        raise ValueError("Notebook is not notebook format 4")
+    version = metadata.get("schemaVersion")
+    if version == 1:
+        raise ValueError("Notebook schema 1 has goals only; run --upgrade to add guided examples without replacing learner work")
+    if version != NOTEBOOK_SCHEMA_VERSION:
         raise ValueError("Notebook is not a supported Python Master plan")
     if section_ids != curriculum_ids:
         raise ValueError("Notebook curriculum IDs do not match the bundled curriculum")
@@ -285,14 +403,22 @@ def validate(root: Path) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
         for cell in notebook.get("cells", [])
         if isinstance(cell, dict) and cell.get("cell_type") == "markdown"
     }
-    missing = [section_anchor(section_id) for section_id in section_ids if section_anchor(section_id) not in anchors]
+    required = []
+    for section_id in section_ids:
+        anchor = section_anchor(section_id)
+        required.extend((anchor, f"{anchor}-guidance"))
+    missing = [cell_id for cell_id in required if cell_id not in anchors]
+    code_ids = {cell.get("id") for cell in notebook.get("cells", []) if isinstance(cell, dict) and cell.get("cell_type") == "code"}
+    missing.extend(f"{section_anchor(section_id)}-example" for section_id in section_ids if f"{section_anchor(section_id)}-example" not in code_ids)
     if missing:
-        raise ValueError(f"Notebook is missing section cells: {', '.join(missing)}")
+        raise ValueError(f"Notebook is missing required learning cells: {', '.join(missing)}")
     if progress_path.exists():
         progress = read_json(progress_path)
     else:
         progress = initial_progress(section_ids)
         write_json(progress_path, progress)
+    if progress.get("schemaVersion") != PROGRESS_SCHEMA_VERSION:
+        raise ValueError("Progress has an unsupported schema")
     completed = progress.get("completed", [])
     if not isinstance(completed, list) or any(item not in section_ids for item in completed):
         raise ValueError("Progress contains unknown section IDs")
@@ -435,6 +561,7 @@ def parse_args() -> argparse.Namespace:
     action.add_argument("--init", action="store_true", help="Create the notebook without overwriting one")
     action.add_argument("--launch", action="store_true", help="Open the notebook at the selected/next section")
     action.add_argument("--status", action="store_true", help="Validate and print progress")
+    action.add_argument("--upgrade", action="store_true", help="Add guided examples to a schema-1 notebook without replacing learner cells")
     parser.add_argument("--section", help="Explicit section such as PM-19")
     return parser.parse_args()
 
@@ -449,6 +576,10 @@ def main() -> int:
             print(f"CREATED_PROGRESS={progress}")
         elif args.status:
             status(root)
+        elif args.upgrade:
+            notebook, backup = upgrade(root)
+            print(f"UPGRADED_NOTEBOOK={notebook}")
+            print(f"BACKUP={backup if backup else 'NOT_NEEDED'}")
         else:
             selected, progress, section_ids = choose_section(root, args.section)
             if selected is None:

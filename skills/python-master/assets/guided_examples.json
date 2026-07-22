@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "examples": {
+    "PM-01": {
+      "title": "Aliasing versus copying",
+      "guidance": ["Draw the object graph before running the append.", "Compare aliasing, shallow copying, and deep copying at both nesting levels."],
+      "code": "from copy import deepcopy\noriginal = {\"limits\": [10, 20]}\nalias = original\nshallow = original.copy()\ndeep = deepcopy(original)\noriginal[\"limits\"].append(30)\nprint(alias[\"limits\"], shallow[\"limits\"], deep[\"limits\"])\nprint(alias is original, shallow[\"limits\"] is original[\"limits\"])\n"
+    },
+    "PM-02": {
+      "title": "Evaluation order and pattern matching",
+      "guidance": ["Predict which function calls happen before executing the cell.", "Change the left operand's truth value, then add malformed command input."],
+      "code": "events = []\ndef record(name, value):\n    events.append(name); return value\nresult = record(\"left\", 0) and record(\"right\", 1)\ncommand = {\"type\": \"move\", \"x\": 3, \"y\": 4}\nmatch command:\n    case {\"type\": \"move\", \"x\": x, \"y\": y}: distance = abs(x) + abs(y)\n    case _: distance = None\nprint(result, events, distance)\n"
+    },
+    "PM-03": {
+      "title": "Safe defaults and preserved signatures",
+      "guidance": ["Explain when each default expression is evaluated.", "Remove wraps and inspect how the decorated function's metadata changes."],
+      "code": "import inspect\nfrom functools import wraps\ndef append_item(item, bucket=None):\n    bucket = [] if bucket is None else bucket\n    bucket.append(item); return bucket\ndef traced(function):\n    @wraps(function)\n    def wrapper(*args, **kwargs): return function(*args, **kwargs)\n    return wrapper\n@traced\ndef scale(value, /, *, factor=2): return value * factor\nprint(append_item(1), append_item(2), inspect.signature(scale))\n"
+    },
+    "PM-04": {
+      "title": "Descriptor-driven validation",
+      "guidance": ["Trace attribute assignment through __set__ before running it.", "Access the descriptor through both the class and an instance."],
+      "code": "class Positive:\n    def __set_name__(self, owner, name): self.storage = \"_\" + name\n    def __get__(self, instance, owner=None):\n        return self if instance is None else getattr(instance, self.storage)\n    def __set__(self, instance, value):\n        if value <= 0: raise ValueError(\"must be positive\")\n        setattr(instance, self.storage, value)\nclass Batch:\n    size = Positive()\n    def __init__(self, size): self.size = size\nbatch = Batch(8)\nprint(batch.size, Batch.size.storage)\n"
+    },
+    "PM-05": {
+      "title": "Lazy iteration and cleanup",
+      "guidance": ["Predict when the finally block runs for partial and full consumption.", "Inject an input failure and verify cleanup still occurs."],
+      "code": "def batches(rows, size):\n    batch = []\n    try:\n        for row in rows:\n            batch.append(row)\n            if len(batch) == size:\n                yield tuple(batch); batch.clear()\n        if batch: yield tuple(batch)\n    finally: print(\"pipeline closed\")\nstream = batches(range(7), 3)\nprint(next(stream))\nstream.close()\n"
+    },
+    "PM-06": {
+      "title": "Rollback with ExitStack",
+      "guidance": ["Predict acquisition and release order.", "Raise during the second acquisition and inspect partial rollback."],
+      "code": "from contextlib import ExitStack, contextmanager\n@contextmanager\ndef resource(name):\n    print(\"open\", name)\n    try: yield name\n    finally: print(\"close\", name)\nwith ExitStack() as stack:\n    handles = [stack.enter_context(resource(n)) for n in (\"a\", \"b\")]\n    print(\"using\", handles)\n"
+    },
+    "PM-07": {
+      "title": "Sequence operation costs",
+      "guidance": ["State the expected complexity before measuring.", "Vary input size by powers of ten and explain the curve rather than one number."],
+      "code": "from timeit import timeit\nsize = 20_000\nlist_time = timeit(\"v.insert(0,-1); v.pop(0)\", setup=f\"v=list(range({size}))\", number=500)\ndeque_time = timeit(\"v.appendleft(-1); v.popleft()\", setup=f\"from collections import deque; v=deque(range({size}))\", number=500)\nprint(f\"list={list_time:.4f}s deque={deque_time:.4f}s\")\n"
+    },
+    "PM-08": {
+      "title": "Hash and equality contracts",
+      "guidance": ["Identify the invariant connecting __eq__ and __hash__.", "Mutate a key after insertion and explain the failed lookup."],
+      "code": "class UserKey:\n    def __init__(self, tenant, user_id): self.tenant, self.user_id = tenant, user_id\n    def __eq__(self, other):\n        return isinstance(other, UserKey) and (self.tenant, self.user_id) == (other.tenant, other.user_id)\n    def __hash__(self): return hash((self.tenant, self.user_id))\nfirst, second = UserKey(\"acme\", 7), UserKey(\"acme\", 7)\nlookup = {first: \"profile\"}\nprint(first == second, hash(first) == hash(second), lookup[second])\n"
+    },
+    "PM-09": {
+      "title": "Set algebra for authorization",
+      "guidance": ["Express the policy as a relation before writing control flow.", "Decide whether order and duplicates are requirements before converting to a set."],
+      "code": "requested = [\"read\", \"write\", \"admin\"]\ngranted = {\"read\", \"write\"}\nmissing = set(requested) - granted\nprint(\"allowed:\", not missing, \"missing:\", missing)\nseen = set()\nunique = [item for item in requested if not (item in seen or seen.add(item))]\nprint(unique)\n"
+    },
+    "PM-10": {
+      "title": "Text boundaries and buffer views",
+      "guidance": ["Label where bytes become text and which encoding contract applies.", "Mutate the backing bytearray and observe the memoryview without copying."],
+      "code": "packet = bytearray(b\"HEADpayload\")\nview = memoryview(packet)\nheader, payload = bytes(view[:4]), view[4:]\nprint(header.decode(\"ascii\"), bytes(payload))\npacket[4] = ord(\"P\")\nprint(bytes(payload))\npayload.release(); view.release()\n"
+    },
+    "PM-11": {
+      "title": "An immutable value object",
+      "guidance": ["Separate shallow frozen behavior from deep immutability.", "Add exact arithmetic and reject operations across currencies."],
+      "code": "from dataclasses import dataclass\nfrom decimal import Decimal\n@dataclass(frozen=True, slots=True)\nclass Money:\n    amount: Decimal\n    currency: str\n    def __post_init__(self):\n        if len(self.currency) != 3: raise ValueError(\"3-letter currency required\")\nprice = Money(Decimal(\"19.99\"), \"USD\")\nprint(price, hash(price))\n"
+    },
+    "PM-12": {
+      "title": "Stable heap scheduling",
+      "guidance": ["Write down the tuple comparison order used by heapq.", "Remove the sequence number and test jobs that cannot be compared."],
+      "code": "import heapq\nfrom itertools import count\nsequence, queue = count(), []\nfor priority, job in [(2, \"report\"), (1, \"alert-a\"), (1, \"alert-b\")]:\n    heapq.heappush(queue, (priority, next(sequence), job))\nwhile queue: print(heapq.heappop(queue)[2])\n"
+    },
+    "PM-13": {
+      "title": "Import caching",
+      "guidance": ["Predict whether module top-level code executes twice.", "Inspect __spec__ and sys.modules before constructing a circular-import experiment."],
+      "code": "import importlib, sys\nfirst = importlib.import_module(\"json\")\nsecond = importlib.import_module(\"json\")\nprint(first is second, \"json\" in sys.modules)\nprint(first.__package__, first.__spec__.origin)\n"
+    },
+    "PM-14": {
+      "title": "Structural typing",
+      "guidance": ["Distinguish static Protocol checks from runtime validation.", "Remove close and compare type-checker feedback with runtime behavior."],
+      "code": "from typing import Protocol, runtime_checkable\n@runtime_checkable\nclass Closable(Protocol):\n    def close(self) -> None: ...\nclass Connection:\n    def close(self) -> None: print(\"closed\")\ndef shutdown(resource: Closable) -> None: resource.close()\nconnection = Connection()\nprint(isinstance(connection, Closable))\nshutdown(connection)\n"
+    },
+    "PM-15": {
+      "title": "An API that can evolve",
+      "guidance": ["Identify ownership, mutation, I/O, and error contracts at the boundary.", "Replace the boolean flag with a policy when call-site meaning becomes ambiguous."],
+      "code": "from collections.abc import Iterable\ndef fetch_users(ids: Iterable[int], *, include_inactive: bool = False) -> list[dict]:\n    rows = [{\"id\": value, \"active\": value % 2 == 1} for value in ids]\n    return rows if include_inactive else [row for row in rows if row[\"active\"]]\nprint(fetch_users([1, 2, 3]))\n"
+    },
+    "PM-16": {
+      "title": "Deterministic time tests",
+      "guidance": ["Inject time instead of sleeping in tests.", "Test every attempt boundary and verify the final exception is preserved."],
+      "code": "class FakeClock:\n    def __init__(self): self.sleeps = []\n    def sleep(self, seconds): self.sleeps.append(seconds)\ndef backoffs(attempts, clock):\n    for index in range(attempts - 1): clock.sleep(2 ** index)\nclock = FakeClock()\nbackoffs(4, clock)\nassert clock.sleeps == [1, 2, 4]\nprint(clock.sleeps)\n"
+    },
+    "PM-17": {
+      "title": "Bounded input validation",
+      "guidance": ["Validate size before parsing and shape before domain use.", "Try missing, extra, nested, and wrong-type fields."],
+      "code": "import json\ndef decode_request(raw: bytes, *, limit=128):\n    if len(raw) > limit: raise ValueError(\"request too large\")\n    value = json.loads(raw)\n    if set(value) != {\"version\", \"name\"} or value[\"version\"] != 1:\n        raise ValueError(\"unsupported schema\")\n    if not isinstance(value[\"name\"], str): raise ValueError(\"invalid name\")\n    return value\nprint(decode_request(b'{\"version\":1,\"name\":\"Ada\"}'))\n"
+    },
+    "PM-18": {
+      "title": "Inspecting an environment",
+      "guidance": ["Separate interpreter, installation scheme, and distribution metadata.", "Repeat inside a clean virtual environment and compare paths."],
+      "code": "import sys, sysconfig\nfrom importlib import metadata\nprint(\"python:\", sys.version.split()[0])\nprint(\"purelib:\", sysconfig.get_path(\"purelib\"))\ntry: print(\"pip:\", metadata.version(\"pip\"))\nexcept metadata.PackageNotFoundError: print(\"pip not installed\")\n"
+    },
+    "PM-19": {
+      "title": "Protecting a compound invariant",
+      "guidance": ["Name the state invariant rather than relying on an operation that looks atomic.", "Run many threads with and without the lock, then reason beyond one observed result."],
+      "code": "from threading import Lock\nclass Counter:\n    def __init__(self): self._value, self._lock = 0, Lock()\n    def increment(self):\n        with self._lock:\n            current = self._value\n            self._value = current + 1\n    @property\n    def value(self):\n        with self._lock: return self._value\ncounter = Counter(); counter.increment(); print(counter.value)\n"
+    },
+    "PM-20": {
+      "title": "Bounding submitted work",
+      "guidance": ["Separate worker count from total in-flight capacity.", "Inject submission and task failures and verify permits are always released."],
+      "code": "from concurrent.futures import ThreadPoolExecutor\nfrom threading import Semaphore\nslots, pool = Semaphore(4), ThreadPoolExecutor(max_workers=2)\ndef submit(function, *args):\n    slots.acquire()\n    try: future = pool.submit(function, *args)\n    except BaseException: slots.release(); raise\n    future.add_done_callback(lambda _: slots.release())\n    return future\nprint(submit(sum, [1, 2, 3]).result())\npool.shutdown()\n"
+    },
+    "PM-21": {
+      "title": "Process serialization cost",
+      "guidance": ["Measure transfer cost before assuming processes will speed up CPU work.", "Choose chunk sizes that balance IPC amortization and load distribution."],
+      "code": "import multiprocessing as mp, pickle\nfrom time import perf_counter\npayload = list(range(200_000))\nstart = perf_counter()\nencoded = pickle.dumps(payload, protocol=pickle.HIGHEST_PROTOCOL)\nprint(\"start methods:\", mp.get_all_start_methods())\nprint(f\"{len(encoded):,} bytes in {perf_counter()-start:.4f}s\")\n"
+    },
+    "PM-22": {
+      "title": "Structured cancellation",
+      "guidance": ["Mark every suspension point where cancellation can arrive.", "Make one child fail and inspect sibling cleanup and the ExceptionGroup."],
+      "code": "import asyncio, sys\nasync def worker(name, delay):\n    try:\n        await asyncio.sleep(delay); return name\n    finally: print(\"cleanup\", name)\nasync def main():\n    async with asyncio.TaskGroup() as group:\n        tasks = [group.create_task(worker(\"a\", .01)), group.create_task(worker(\"b\", .02))]\n    return [task.result() for task in tasks]\nif hasattr(asyncio, \"TaskGroup\"):\n    print(asyncio.run(main()))\nelse:\n    print(\"TaskGroup requires Python 3.11+; current:\", sys.version.split()[0])\n"
+    },
+    "PM-23": {
+      "title": "A bounded async queue",
+      "guidance": ["Slow the consumer and locate where producer backpressure appears.", "Account for every get with task_done, including failure paths."],
+      "code": "import asyncio\nasync def demo():\n    queue = asyncio.Queue(maxsize=2)\n    async def producer():\n        for value in range(4): await queue.put(value)\n        await queue.put(None)\n    async def consumer():\n        while (value := await queue.get()) is not None:\n            try: print(value)\n            finally: queue.task_done()\n        queue.task_done()\n    await asyncio.gather(producer(), consumer()); await queue.join()\nasyncio.run(demo())\n"
+    },
+    "PM-24": {
+      "title": "Length-prefixed framing",
+      "guidance": ["Never assume one recv call returns the requested bytes.", "Reject oversized declared lengths before allocation."],
+      "code": "import socket, struct\nleft, right = socket.socketpair()\ntry:\n    payload = b\"hello\"\n    left.sendall(struct.pack(\"!I\", len(payload)) + payload)\n    header = right.recv(4); size = struct.unpack(\"!I\", header)[0]\n    body = bytearray()\n    while len(body) < size: body.extend(right.recv(size - len(body)))\n    print(bytes(body))\nfinally: left.close(); right.close()\n"
+    },
+    "PM-25": {
+      "title": "A bounded local HTTP exchange",
+      "guidance": ["Separate connect, header, body, and total deadline concerns.", "Limit response bytes and decide which operations are safe to retry."],
+      "code": "from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\nfrom threading import Thread\nfrom urllib.request import urlopen\nclass Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        body=b\"ok\"; self.send_response(200); self.send_header(\"Content-Length\",\"2\"); self.end_headers(); self.wfile.write(body)\n    def log_message(self,*_): pass\nserver=ThreadingHTTPServer((\"127.0.0.1\",0),Handler); Thread(target=server.serve_forever,daemon=True).start()\ntry:\n    with urlopen(f\"http://127.0.0.1:{server.server_port}/\",timeout=1) as response: print(response.status,response.read(16))\nfinally: server.shutdown(); server.server_close()\n"
+    },
+    "PM-26": {
+      "title": "Async admission control",
+      "guidance": ["Decide whether admission happens before or after creating a task.", "Design shutdown to stop acceptance and drain bounded in-flight work."],
+      "code": "import asyncio\nasync def handle(reader, writer, slots):\n    async with slots:\n        data = await reader.read(100); writer.write(data.upper()); await writer.drain()\n    writer.close(); await writer.wait_closed()\nasync def main():\n    slots=asyncio.Semaphore(10)\n    server=await asyncio.start_server(lambda r,w: handle(r,w,slots),\"127.0.0.1\",0)\n    print(server.sockets[0].getsockname()); server.close(); await server.wait_closed()\nasyncio.run(main())\n"
+    },
+    "PM-27": {
+      "title": "Secure TLS defaults",
+      "guidance": ["Name the guarantees lost when verification is disabled.", "Keep authentication, authorization, transport encryption, and secret handling separate."],
+      "code": "import hmac, ssl\ncontext = ssl.create_default_context()\nprint(\"hostname checks:\", context.check_hostname)\nprint(\"verification mode:\", context.verify_mode)\nprint(\"signature matches:\", hmac.compare_digest(b\"signed\", b\"signed\"))\n"
+    },
+    "PM-28": {
+      "title": "CPU and allocation evidence",
+      "guidance": ["Write a performance hypothesis before selecting a profiler.", "Repeat measurements and distinguish CPU, wall time, allocation, I/O, and queueing."],
+      "code": "import cProfile, tracemalloc\nwork = lambda: sum(value * value for value in range(50_000))\ntracemalloc.start(); profiler = cProfile.Profile(); profiler.enable()\nresult = work(); profiler.disable()\ncurrent, peak = tracemalloc.get_traced_memory(); tracemalloc.stop()\nprint(result, \"peak bytes:\", peak)\nprofiler.print_stats(sort=\"cumtime\")\n"
+    },
+    "PM-29": {
+      "title": "Complexity before constants",
+      "guidance": ["Include index construction for one-shot workloads.", "Measure memory and find the query count where precomputation pays off."],
+      "code": "from timeit import timeit\nusers=[{\"id\":v} for v in range(10_000)]; queries=list(range(0,10_000,10))\ndef scan(): return [next(u for u in users if u[\"id\"]==q) for q in queries]\nindex={u[\"id\"]:u for u in users}\ndef indexed(): return [index[q] for q in queries]\nprint(\"scan\",timeit(scan,number=3)); print(\"index\",timeit(indexed,number=3))\n"
+    },
+    "PM-30": {
+      "title": "A measurable bounded handler",
+      "guidance": ["Establish correctness and malformed-input tests before load testing.", "Measure serialization, queueing, and compute separately before optimizing."],
+      "code": "import json\nfrom time import perf_counter\nMAX_BODY=1024\ndef handle(raw: bytes) -> bytes:\n    if len(raw)>MAX_BODY: raise ValueError(\"too large\")\n    values=json.loads(raw).get(\"values\")\n    if not isinstance(values,list) or not all(isinstance(v,int) for v in values): raise ValueError(\"invalid\")\n    return json.dumps({\"sum\":sum(values)},separators=(\",\",\":\")).encode()\nstart=perf_counter(); print(handle(b'{\"values\":[1,2,3]}'), f\"{(perf_counter()-start)*1e6:.1f} us\")\n"
+    }
+  }
+}

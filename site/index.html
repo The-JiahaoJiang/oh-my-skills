@@ -129,7 +129,7 @@
           <h3>Python Master</h3>
           <p>Work through a persistent 30-section Jupyter notebook that joins language semantics, production pitfalls, concurrency, networking, and measured optimization.</p>
           <ul>
-            <li>Executable prediction-and-experiment labs</li>
+            <li>Guided walkthrough and runnable example per section</li>
             <li>Stable PM-01 through PM-30 sections</li>
             <li>Direct launch to the next notebook anchor</li>
             <li>Durable progress outside chat history</li>
@@ -294,11 +294,11 @@
           <div class="eyebrow blue"><span></span> /skill:python-master [PM-XX]</div>
           <h2>Learn Python where it<br><em>actually executes.</em></h2>
         </div>
-        <p>Generate one persistent Jupyter notebook, then reopen it at the next or requested lesson. Every section turns semantics and pitfalls into predictions, runnable experiments, tests, explanations, and measurements.</p>
+        <p>Generate one persistent Jupyter notebook, then reopen it at the next or requested lesson. Every section now pairs a mental-model walkthrough and runnable example with predictions, pitfall probes, an open lab, tests, explanations, and measurements.</p>
       </div>
 
       <div class="python-flow reveal" role="group" aria-label="Python Master notebook learning flow">
-        <article><span>01</span><small>Missing plan</small><strong>Generate notebook</strong><p>Create 30 stable sections and a separate progress file without overwriting learner work.</p></article>
+        <article><span>01</span><small>Missing plan</small><strong>Generate notebook</strong><p>Create 30 guided sections, runnable examples, and a separate progress file without overwriting learner work.</p></article>
         <i aria-hidden="true">→</i>
         <article><span>02</span><small>Select</small><strong>Next or PM-XX</strong><p>Resume the first incomplete lesson or jump directly to a requested topic.</p></article>
         <i aria-hidden="true">→</i>
@@ -313,10 +313,10 @@
         <div class="notebook-window">
           <div class="notebook-head"><span>PYTHON_MASTER.ipynb</span><small>Python 3 · trusted by you</small></div>
           <div class="notebook-cell markdown-cell">
-            <span class="cell-kind">Markdown</span>
+            <span class="cell-kind">Guided walkthrough</span>
             <small>Concurrency · PM-22</small>
             <h3>Asyncio tasks, event loops, and cancellation</h3>
-            <p>Predict what remains alive when the parent task is cancelled at each <code>await</code>.</p>
+            <p><strong>Before running:</strong> mark every suspension point where cancellation can arrive, then predict child cleanup and the resulting exception group.</p>
           </div>
           <div class="notebook-cell code-cell">
             <span class="cell-kind">Code</span>
@@ -336,7 +336,7 @@
           <div><span>05</span><strong>Concurrency</strong><small>threads · processes · asyncio · backpressure</small></div>
           <div><span>04</span><strong>Networking</strong><small>TCP · HTTP · overload · TLS</small></div>
           <div><span>03</span><strong>Performance</strong><small>profiling · layout · capstone</small></div>
-          <p><strong>30 sections.</strong> Progress lives in <code>PYTHON_MASTER_PROGRESS.json</code>; notebook cells are never auto-executed.</p>
+          <p><strong>30 sections · 183 cells.</strong> Progress lives in <code>PYTHON_MASTER_PROGRESS.json</code>; notebook cells are never auto-executed. Goals-only schema-1 notebooks upgrade additively after a backup.</p>
         </aside>
       </div>
     </section>
