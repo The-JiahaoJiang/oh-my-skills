@@ -1,20 +1,29 @@
 ---
 name: learn-project
-description: Analyze a source repository beneath the current workspace, centrally store its architecture report, learning plan, identity metadata, and session notes under the workspace repository, and run an interactive function-level source-learning curriculum with feedback and progress tracking. Use when the user invokes /skill:learn-project with a repository path or asks to study and track a project's architecture and source code.
+description: Analyze any local source repository selected by path, centrally store its architecture report, learning plan, identity metadata, and session notes under the current workspace repository, and run an interactive function-level source-learning curriculum with feedback and progress tracking. Use when the user invokes /skill:learn-project with a local repository path or asks to study and track a project's architecture and source code.
 ---
 
 # Learn Project
 
-Treat the skill argument as the name or relative path of one source repository beneath the current workspace repository.
+Treat the skill argument as an absolute or relative path to one local source repository. The repository may be inside or outside the current workspace; all learning resources remain centralized in the current workspace repository.
 
 ## Safety and path resolution
 
-1. Require exactly one repository argument. If it is missing, ask for it and stop.
+1. Require exactly one repository path argument. If it is missing, ask for it and stop. Accept absolute paths and paths relative to the current working directory; expand the platform's normal home-directory syntax when supported.
 2. Resolve the current Git repository root and call it `WORKSPACE`. If the current directory is not inside a Git repository, explain that centralized, syncable study state requires a workspace repository and stop.
-3. Resolve the argument against the current working directory and call the result `REPO`. Reject a path that resolves outside `WORKSPACE`, equals `WORKSPACE`, does not exist, or is not a directory.
-4. Keep all generated study state in `WORKSPACE`, never in `REPO`. The target repository is read-only: do not create, update, move, or delete source files or study artifacts inside it.
-5. Never write to a nested target repository's Git metadata. Respect ignored/generated/vendor directories. Start with repository metadata and manifests, then inspect source selectively. Do not bulk-read dependencies, build output, minified files, generated files, binaries, or secrets. Never reproduce secret values in study material.
-6. Use workspace-relative paths for synchronized metadata and links whenever possible. Never persist machine-specific absolute paths.
+3. Canonicalize the argument (including symlink/junction resolution when available) and call the resulting directory `REPO`. Reject it only if it equals `WORKSPACE`, does not exist, is not a directory, or cannot be read. Do not reject it merely because it is outside `WORKSPACE`.
+4. Keep every generated study file in `WORKSPACE`, never in `REPO`, even when `REPO` is a sibling directory or is selected with an absolute path. The target repository is read-only: do not create, update, move, or delete source files or study artifacts inside it.
+5. Never write to the target repository's Git metadata. Respect ignored/generated/vendor directories. Start with repository metadata and manifests, then inspect source selectively. Do not bulk-read dependencies, build output, minified files, generated files, binaries, or secrets. Never reproduce secret values in study material.
+6. Compute a normalized POSIX-style relative locator from `WORKSPACE` to `REPO` and call it `REPO_LOCATOR`. It may begin with `..` when the repository is outside the workspace. Persist `REPO_LOCATOR`, never the supplied argument or a machine-specific absolute path. Use paths relative to `WORKSPACE`, `STUDY_ROOT`, or `REPO` for synchronized metadata and links.
+7. Treat all repository-derived paths as read targets only. Resolve every study write destination independently beneath `STUDY_ROOT`, and verify it remains inside `WORKSPACE/PROJECT_LEARNING` before writing.
+
+Valid invocations include a child directory, a sibling repository, or an absolute local path:
+
+```text
+/skill:learn-project ./sources/redis
+/skill:learn-project ../redis
+/skill:learn-project C:\src\redis
+```
 
 ## Central study layout and project correlation
 
@@ -40,9 +49,9 @@ Correlate central files to the source project with both a human-readable key and
 1. Derive `projectName` from the target Git root's directory name. If the target is not a Git repository, use `REPO`'s directory name.
 2. Convert `projectName` to a lowercase filesystem-safe slug. Preserve letters and numbers, collapse other runs to one hyphen, and trim hyphens. Use `project` if the result is empty.
 3. Read the target's `origin` fetch URL when available. Normalize HTTPS, `ssh://`, and SCP-like `user@host:path` forms to one credential-free identity, `https://<lowercase-host>/<repository-path>`, so SSH and HTTPS clones of the same project correlate. Remove userinfo, tokens, default ports, duplicate slashes, a trailing `.git`, and a trailing slash. Retain a non-default port. Treat local/file remotes as unavailable rather than persisting machine-specific paths. Never persist secrets from a remote URL.
-4. Build the identity seed from the sanitized canonical remote URL when available; otherwise use the normalized POSIX-style path from `WORKSPACE` to `REPO`.
+4. Build the identity seed from the sanitized canonical remote URL when available; otherwise use `REPO_LOCATOR`. This permits stable correlation for local repositories without persisting an absolute path.
 5. Compute the first eight lowercase hexadecimal characters of SHA-256 over the UTF-8 identity seed. Set `projectKey` to `<project-slug>--<hash8>`, for example `redis--3a71c9e2`. The readable prefix identifies the project; the hash prevents collisions between forks or same-named directories.
-6. Before creating a key, read `PROJECT_LEARNING/projects.json`. Reuse an existing entry when its sanitized remote matches, or—when no remote exists—its repository-relative path matches. This keeps identity stable when the display name changes. Never silently merge two different remotes.
+6. Before creating a key, read `PROJECT_LEARNING/projects.json`. Reuse an existing entry when its sanitized remote matches, or—when no remote exists—its stored `workspaceRelativePath` matches `REPO_LOCATOR`. This keeps identity stable when the display name changes. Never silently merge two different remotes.
 7. Set `STUDY_ROOT` to `WORKSPACE/PROJECT_LEARNING/<projectKey>`.
 
 Create `STUDY_ROOT/PROJECT.json` with this portable shape:
@@ -53,7 +62,7 @@ Create `STUDY_ROOT/PROJECT.json` with this portable shape:
   "projectKey": "redis--3a71c9e2",
   "projectName": "redis",
   "repository": {
-    "workspaceRelativePath": "sources/redis",
+    "workspaceRelativePath": "../redis",
     "remote": "https://github.com/redis/redis"
   },
   "artifacts": {
@@ -76,7 +85,7 @@ Use `null` for an unavailable remote. Preserve `createdAt`; update `updatedAt` o
       "projectKey": "redis--3a71c9e2",
       "projectName": "redis",
       "repository": {
-        "workspaceRelativePath": "sources/redis",
+        "workspaceRelativePath": "../redis",
         "remote": "https://github.com/redis/redis"
       },
       "manifest": "PROJECT_LEARNING/redis--3a71c9e2/PROJECT.json"
@@ -90,9 +99,9 @@ Sort entries by `projectKey`. Write valid UTF-8 JSON with stable two-space inden
 Validate correlation on every invocation:
 
 - the registry entry, directory name, and manifest `projectKey` must agree;
-- the manifest's workspace-relative source path must resolve to `REPO` without escaping `WORKSPACE`;
+- the manifest's `workspaceRelativePath` must be a relative POSIX-style locator equal to `REPO_LOCATOR` and resolve from `WORKSPACE` to the canonical `REPO`; leading `..` segments are valid;
 - a stored remote mismatch is an identity conflict, not an automatic update;
-- if a repository moved inside the workspace but the sanitized remote still matches, update only its workspace-relative path;
+- if a repository moved anywhere on the local machine but the sanitized remote still matches, update only its workspace-relative locator;
 - if neither path nor remote identifies an existing entry, create a new project key rather than reusing another project's notes.
 
 Use the local date. Make note slugs filesystem-safe. If overloaded or duplicate function names would collide, add a short class, namespace, or file qualifier to `function-slug`.
@@ -149,7 +158,7 @@ Create a standalone, readable HTML5 document that works locally without a server
 8. notable weaknesses, trade-offs, and the technical or organizational factors that contribute to them;
 9. a fair comparison table with a small set of genuinely similar projects, including where this project is or is not a good fit;
 10. a “Source-code map” linking claims to `REPO`-relative file paths and symbols, with original line ranges when reliably available; because the HTML lives outside `REPO`, display source paths as repository-relative text and compute any clickable local `href` relative from `STUDY_ROOT` to the source file;
-11. project identity from `PROJECT.json` (`projectName`, `projectKey`, workspace-relative repository path, and sanitized remote), plus uncertainty/version notes: analyzed revision or commit (if available), current date, and areas not verified;
+11. project identity from `PROJECT.json` (`projectName`, `projectKey`, workspace-relative repository locator, and sanitized remote), plus uncertainty/version notes: analyzed revision or commit (if available), current date, and areas not verified;
 12. references with clickable URLs, titles, access dates, and a distinction between repository evidence and external evidence.
 
 Use diagrams where useful. Prefer inline SVG or semantic HTML/CSS; include text explanations so diagrams are not the only representation. Do not use Mermaid unless it is bundled and works offline.
@@ -162,7 +171,7 @@ Base the curriculum on the architecture analysis and actual source tree. If the 
 
 The plan must contain:
 
-- `projectName`, `projectKey`, sanitized remote when available, and the workspace-relative path from `WORKSPACE` to `REPO`;
+- `projectName`, `projectKey`, sanitized remote when available, and `REPO_LOCATOR` (the workspace-relative path to `REPO`, which may begin with `..`);
 - analyzed revision/commit and date;
 - learning goals and suggested prerequisites;
 - a module-by-module order that follows real execution/data flows and respects dependencies;

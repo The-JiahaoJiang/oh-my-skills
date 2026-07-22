@@ -111,8 +111,9 @@
           <div class="skill-icon" aria-hidden="true">⌘</div>
           <div class="skill-label">Source learning</div>
           <h3>Learn Project</h3>
-          <p>Map a repository’s architecture, generate an execution-flow curriculum, and study one carefully selected function in each interactive session.</p>
+          <p>Map any local repository’s architecture, generate an execution-flow curriculum, and study one carefully selected function in each interactive session.</p>
           <ul>
+            <li>Absolute or relative repository paths</li>
             <li>Workspace-owned learning hub</li>
             <li>Stable project-name and remote correlation</li>
             <li>Function-level learning plan</li>
@@ -210,10 +211,10 @@
     <section class="section feature source-feature" id="learn-project">
       <div class="feature-header reveal">
         <div>
-          <div class="eyebrow mint"><span></span> /skill:learn-project</div>
+          <div class="eyebrow mint"><span></span> /skill:learn-project [repo-path]</div>
           <h2>Read a codebase in the<br><em>order it actually runs.</em></h2>
         </div>
-        <p>Keep source repositories read-only while architecture reports, plans, and notes live together under the workspace. A readable project key plus remote-derived hash keeps every synchronized artifact tied to the right codebase.</p>
+        <p>Pass an absolute or relative path to any local repository—even one outside the workspace. Source stays read-only while architecture reports, plans, and notes are centralized under the current workspace.</p>
       </div>
 
       <div class="source-map reveal" role="img" aria-label="Learn Project source-learning flow">
@@ -230,7 +231,7 @@
         <div class="source-column artifact-column">
           <span class="column-label">PROJECT_LEARNING/redis--3a71c9e2/</span>
           <article class="artifact-card identity-artifact">
-            <div class="artifact-icon">ID</div><div><small>Portable correlation</small><strong>PROJECT.json</strong><p>Project name · workspace path · sanitized remote</p></div><span class="status-badge">registry linked</span>
+            <div class="artifact-icon">ID</div><div><small>Portable correlation</small><strong>PROJECT.json</strong><p>Project name · relative locator · sanitized remote</p></div><span class="status-badge">registry linked</span>
           </article>
           <article class="artifact-card architecture-artifact">
             <div class="artifact-icon">A</div><div><small>Architecture map</small><strong>ARCHITETURE.html</strong><p>Boundaries · flows · tradeoffs · references</p></div><span class="status-badge">evidence-backed</span>
@@ -357,7 +358,7 @@
             <div><span class="prompt">›</span><code>/reload</code></div>
             <div><span class="prompt">›</span><code>/skill:start-design SD-01</code></div>
             <div class="or"><span></span>or<span></span></div>
-            <div><span class="prompt">›</span><code>/skill:learn-project my-repository</code></div>
+            <div><span class="prompt">›</span><code>/skill:learn-project ../my-repository</code></div>
           </div>
         </div>
       </div>
